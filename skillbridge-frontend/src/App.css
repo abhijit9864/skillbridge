@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import './styles/global.css';
+
+body{
+  background-color: wheat;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 60px; /* Height of the navbar */
+}
+
+/* Theme Styles */
+.light-theme {
+  --bg-primary: var(--background-light);
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+}
+
+.dark-theme {
+  --bg-primary: var(--background-dark);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+}
+
+/* Animation Classes */
+.page-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Layout */
+@media screen and (max-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .main-content {
+    padding-top: 50px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .main-content {
+    padding-top: 40px;
+  }
+}

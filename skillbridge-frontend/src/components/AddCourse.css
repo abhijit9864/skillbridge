@@ -1,0 +1,204 @@
+/* General Styles */
+body {
+  background-color: #f8f9fa;
+  font-family: 'ABeeZee', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Full-page Layout */
+.page-container {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 280px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  position: fixed;
+  transition: all 0.3s ease-in-out;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #6306b2;
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border-radius: 5px;
+}
+
+.sidebar a:hover {
+  background-color: #f1f1f1;
+  color: #6306b2;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 500px;
+  padding: 40px;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Course Section */
+.course-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Course Cards */
+.course-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+  transform: scale(1.03);
+}
+
+.course-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.course-card h3 {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.course-card p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: bold;
+  color: #6306b2;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+/* Form Input */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc !important;
+  padding: 12px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  border-color: #6306b2;
+  box-shadow: 0px 0px 6px rgba(99, 6, 178, 0.5);
+}
+
+.form-control:hover {
+  border-color: #888;
+}
+
+/* Placeholder Styling */
+.form-control::placeholder {
+  color: #999 !important;
+  font-style: italic;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus::placeholder {
+  color: #bbb !important;
+  font-style: normal;
+}
+
+/* Adjusting button container for better spacing */
+.d-flex {
+  display: flex;
+  gap: 10px; /* This will reduce the space between the buttons */
+}
+
+.btn {
+  padding: 12px 18px; /* Slightly reduced padding for a more compact look */
+  font-weight: bold;
+  font-size: 16px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background-color: #6306b2;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #50058a;
+  transform: scale(1.02);
+}
+
+.btn-outline-secondary {
+  background-color: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 12px 18px; /* Slightly reduced padding for a more compact look */
+}
+
+.btn-outline-secondary:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main-content {
+    margin-left: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .course-section {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+.main{
+  padding: 60px;
+}

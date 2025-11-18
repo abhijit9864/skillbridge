@@ -1,0 +1,63 @@
+
+.pricing-section {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f0f0f0;
+}
+
+.pricing-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.pricing-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pricing-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+}
+
+.pricing-card h3 {
+  font-size: 1.5rem;
+  color: #6306b2;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Button Styles */
+.pricing-btn {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Plan-specific Colors */
+.basic { border-top: 5px solid #4CAF50; } /* Green */
+.personal { border-top: 5px solid #FF9800; } /* Orange */
+.business { border-top: 5px solid #6306b2; } /* Purple */
+
+.basic .pricing-btn { background: #4CAF50; color: white; }
+.personal .pricing-btn { background: #FF9800; color: white; }
+.business .pricing-btn { background: #6306b2; color: white; }
