@@ -1,4 +1,7 @@
 package com.skillbridge.backend.entity;
 
-public class ContentType {
+public enum ContentType {
+    VIDEO,
+    PDF,
+    QUIZ
 }
