@@ -1,0 +1,133 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: transparent;
+  z-index: 1000;
+}
+
+/* LOGO */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 28px;
+  color: #ff4667;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-color)
+}
+
+.sub {
+  font-size: 10px;
+  margin-top: -3px;
+  color: var(--text-color);
+}
+
+/* CENTER MENU */
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.nav-links li {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-links li:hover {
+  color: #ff4667;
+}
+
+/* RIGHT BUTTONS */
+/* .nav-actions {
+  display: flex;
+  gap: 15px;
+} */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ff4667;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signup-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e5e7eb;
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.signup-btn:hover {
+  background: #d1d5db;
+}
+.navbar {
+  background: transparent;
+  color: var(--text-color);
+}
+
+.login-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.signup-btn {
+  background: var(--secondary-color);
+  color: var(--text-color);
+}
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}

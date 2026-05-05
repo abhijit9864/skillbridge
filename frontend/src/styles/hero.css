@@ -1,0 +1,189 @@
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 120px 80px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.hero {
+  position: relative;
+  z-index: 1; /* FIX layering */
+}
+/* Top section with icon */
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.book-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hero Image */
+.hero-image {
+  width: 400px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Optional: remove old card */
+.hero-card {
+  display: none;
+}
+
+/* LEFT */
+.hero-left {
+  max-width: 550px;
+}
+
+/* Top text */
+.hero-top-text {
+  color: #6D6D6D;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* Heading */
+.hero-heading {
+  font-size: 42px;
+  font-weight: bold;
+  color: var(--text-color);
+  line-height: 1.3;
+}
+
+/* .hero-heading span {
+  background: #FF4667;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+} */
+
+/* Button */
+.hero-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: #FF4667;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.hero-btn:hover {
+  opacity: 0.9;
+}
+
+/* Sub text */
+.hero-sub {
+  margin-top: 20px;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+/* RIGHT */
+.hero-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-card {
+  width: 300px;
+  height: 200px;
+  background: #1f2937;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+}
+/* 🔥 Animated Background Blobs */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+/* Blob 1 */
+.hero::before {
+  width: 300px;
+  height: 300px;
+  background: #5625E8;
+  top: 10%;
+  left: 15%;
+  animation: float1 12s ease-in-out infinite;
+}
+
+/* Blob 2 */
+.hero::after {
+  width: 250px;
+  height: 250px;
+  background: #FF4667;
+  bottom: 15%;
+  right: 20%;
+  animation: float2 14s ease-in-out infinite;
+}
+
+/* Blob 3 (extra div needed) */
+.hero-blob {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(45deg, #5625E8, #FF4667);
+  border-radius: 50%;
+  filter: blur(100px);
+  top: 50%;
+  left: 60%;
+  z-index: -1;
+  animation: float3 16s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes float1 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -30px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 40px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float3 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(20px, 30px); }
+  100% { transform: translate(0, 0); }
+}
+.highlight {
+  position: relative;
+  z-index: 1;
+  padding: 0 6px;
+}
+
+/* 🔥 Marker Style Background */
+.highlight::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  top: 50%;
+  height: 60%;
+  background: #FF4667;
+  transform: translateY(-50%) rotate(-2deg);
+  border-radius: 8px 20px 10px 25px;
+  z-index: -1;
+}
