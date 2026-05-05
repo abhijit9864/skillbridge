@@ -1,4 +1,6 @@
 package com.skillbridge.backend.entity;
 
-public class UserStatus {
+public enum UserStatus {
+    ACTIVE,
+    INACTIVE
 }

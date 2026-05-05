@@ -10,26 +10,33 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // RuntimeException handler
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleRuntime(RuntimeException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return error;
-    }
-
-    // Validation handler
+    // 🔥 Validation errors FIRST
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
+    public Map<String, Object> handleValidation(MethodArgumentNotValidException ex) {
 
-        Map<String, String> error = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors().forEach(e ->
-                error.put(e.getField(), e.getDefaultMessage())
+                errors.put(e.getField(), e.getDefaultMessage())
         );
 
-        return error;
+        response.put("status", 400);
+        response.put("errors", errors);
+
+        return response;
+    }
+
+    // 🔥 Runtime errors
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleRuntime(RuntimeException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 400);
+        response.put("message", ex.getMessage());
+
+        return response;
     }
 }

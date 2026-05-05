@@ -1,4 +1,8 @@
 package com.skillbridge.backend.entity;
 
-public class Role {
+public enum Role {
+    SUPER_ADMIN,
+    ADMIN,
+    INSTRUCTOR,
+    STUDENT
 }
