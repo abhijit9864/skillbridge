@@ -5,6 +5,9 @@ import com.skillbridge.backend.dto.UserResponseDto;
 import com.skillbridge.backend.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.skillbridge.backend.entity.User;
+import java.util.List;
+import com.skillbridge.backend.dto.UpdateProfileDto;
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,6 +20,16 @@ public class UserController {
     public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+    }
+
+    @GetMapping
+    public List<UserResponseDto> getAllUsers(
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        return userService.getAllUsers(email);
     }
 
     // 🔥 GET PROFILE (/me)
@@ -39,5 +52,26 @@ public class UserController {
         String email = jwtUtil.extractEmail(token);
 
         return userService.uploadProfileImage(email, file);
+    }
+    @PutMapping("/{id}")
+    public UserResponseDto updateUser(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long id,
+            @RequestBody User user) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        return userService.updateUser(email, id, user);
+    }
+    @PutMapping("/profile")
+    public UserResponseDto updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UpdateProfileDto dto) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        return userService.updateProfile(email, dto);
     }
 }
