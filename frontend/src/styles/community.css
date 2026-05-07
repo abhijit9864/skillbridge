@@ -1,0 +1,184 @@
+.community {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 60px;
+  padding: 100px 80px;
+  flex-wrap: wrap;
+}
+
+/* LEFT */
+.community-left {
+  flex: 1;
+  min-width: 320px;
+}
+
+.community-tag {
+  color: #FF4667;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.community-heading {
+  font-size: 38px;
+  font-weight: bold;
+  line-height: 1.3;
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
+
+.community-desc {
+  color: #6B7280;
+  margin-bottom: 35px;
+  line-height: 1.7;
+}
+
+/* POINTS */
+.community-points {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.community-point {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.point-icon {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+/* Icon Colors */
+.purple {
+  color: #5625E8;
+}
+
+.pink {
+  color: #FF4667;
+}
+
+.blue {
+  color: #0DCAF0;
+}
+
+.community-point h4 {
+  margin-bottom: 6px;
+  color: var(--text-color);
+}
+
+.community-point p {
+  color: #6B7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* BUTTONS */
+.community-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 35px;
+}
+
+.primary-btn {
+  background: #FF4667;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* RIGHT SECTION */
+.community-right {
+  flex: 1;
+  position: relative;
+  min-height: 650px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Female Card */
+.female-card {
+  width: 380px;
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.female-image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Male Floating Card */
+.male-card {
+  position: absolute;
+  width: 240px;
+  border-radius: 28px;
+  overflow: hidden;
+  bottom: 20px;
+  right: 20px;
+  z-index: 3;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.male-image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Green Shape */
+.shape-circle {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: #18E0B5;
+  border-radius: 50%;
+  top: 120px;
+  right: 40px;
+  z-index: 1;
+}
+
+/* Dotted Pattern */
+.dot-pattern {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: 130px;
+  right: 120px;
+  z-index: 2;
+  background-image: radial-gradient(white 2px, transparent 2px);
+  background-size: 16px 16px;
+  opacity: 0.8;
+}
+.male-card {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

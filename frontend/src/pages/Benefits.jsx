@@ -3,7 +3,7 @@ import { FaLaptopCode, FaInfinity, FaChalkboardTeacher } from "react-icons/fa";
 
 function Benefits() {
   return (
-    <section className="benefits">
+    <section className="benefits" id="benefits">
       <p className="benefits-tag">Our Benefits</p>
 
       <h2 className="benefits-heading">

@@ -1,0 +1,118 @@
+.how-it-works {
+  padding: 100px 80px;
+  text-align: center;
+}
+
+/* TOP */
+.how-tag {
+  color: #FF4667;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.how-heading {
+  font-size: 38px;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 18px;
+}
+
+.how-desc {
+  max-width: 700px;
+  margin: 0 auto 60px;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+/* GRID */
+.how-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 25px;
+}
+
+/* CARD */
+.how-card {
+  position: relative;
+  padding: 30px;
+  border-radius: 22px;
+  background: var(--secondary-color);
+  overflow: hidden;
+  text-align: left;
+  transition: 0.3s ease;
+}
+
+.how-card:hover {
+  transform: translateY(-8px);
+}
+
+/* ICON */
+.how-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  font-size: 22px;
+  color: white;
+}
+
+/* CARD COLORS */
+.purple-card .how-icon {
+  background: #5625E8;
+}
+
+.pink-card .how-icon {
+  background: #FF4667;
+}
+
+.blue-card .how-icon {
+  background: #0DCAF0;
+}
+
+.gradient-card .how-icon {
+  background: linear-gradient(45deg, #5625E8, #FF4667);
+}
+
+/* TEXT */
+.how-card h3 {
+  color: var(--text-color);
+  margin-bottom: 12px;
+}
+
+.how-card p {
+  color: #6B7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* GLOW EFFECT */
+.how-card::before {
+  content: "";
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  top: -40px;
+  right: -40px;
+  filter: blur(70px);
+  opacity: 0.3;
+}
+
+/* DIFFERENT GLOW COLORS */
+.purple-card::before {
+  background: #5625E8;
+}
+
+.pink-card::before {
+  background: #FF4667;
+}
+
+.blue-card::before {
+  background: #0DCAF0;
+}
+
+.gradient-card::before {
+  background: linear-gradient(45deg, #5625E8, #FF4667);
+}

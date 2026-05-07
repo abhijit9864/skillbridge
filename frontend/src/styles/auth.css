@@ -1,0 +1,158 @@
+/* src/styles/auth.css */
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* LEFT */
+.auth-left {
+  flex: 1;
+  background: linear-gradient(135deg, #5625E8, #7B4DFF);
+  color: white;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-illustration {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 40px;
+}
+
+.auth-left h1 {
+  font-size: 42px;
+  margin-bottom: 20px;
+}
+
+.auth-left h1 span {
+  color: #FF4667;
+}
+
+.auth-left p {
+  max-width: 500px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.8);
+}
+
+/* RIGHT */
+.auth-right {
+  flex: 1;
+  background: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* FORM */
+.auth-form-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.auth-logo-icon {
+  font-size: 30px;
+  color: #FF4667;
+}
+
+.auth-title {
+  font-size: 36px;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.auth-subtitle {
+  color: #6B7280;
+  margin-bottom: 40px;
+}
+
+/* INPUT */
+.input-group {
+  margin-bottom: 22px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--secondary-color);
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.input-icon {
+  color: #9CA3AF;
+}
+
+.input-box input,
+.input-box select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-color);
+}
+
+/* BUTTON */
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  background: #FF4667;
+  color: white;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+/* WELCOME */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.welcome-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+.welcome-section h2 {
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.welcome-section p {
+  color: #6B7280;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  .auth-left {
+    display: none;
+  }
+}

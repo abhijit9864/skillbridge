@@ -4,7 +4,7 @@ import bookIcon from "../assets/book icon.png";
 
 function Hero() {
   return (
-    <section className="hero">
+    <section className="hero" id="hero">
       
       {/* 🔥 Blob */}
       <div className="hero-blob"></div>

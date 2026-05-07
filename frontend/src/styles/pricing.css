@@ -1,0 +1,151 @@
+.pricing {
+  padding: 100px 80px;
+}
+
+/* HEADER */
+.pricing-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.pricing-tag {
+  color: #FF4667;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.pricing-heading {
+  font-size: 38px;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 18px;
+}
+
+.pricing-desc {
+  max-width: 700px;
+  margin: auto;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+/* GRID */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* CARD */
+.pricing-card {
+  position: relative;
+  background: var(--secondary-color);
+  padding: 35px;
+  border-radius: 28px;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
+
+.pricing-card:hover {
+  transform: translateY(-8px);
+}
+
+/* Glow */
+.pricing-card::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  top: -50px;
+  right: -50px;
+  filter: blur(90px);
+  opacity: 0.18;
+}
+
+.purple-plan::before {
+  background: #5625E8;
+}
+
+.pink-plan::before {
+  background: #FF4667;
+}
+
+.blue-plan::before {
+  background: #0DCAF0;
+}
+
+/* Popular */
+.popular-plan {
+  border: 1px solid rgba(255, 70, 103, 0.3);
+}
+
+.popular-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: #FF4667;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* TEXT */
+.pricing-card h3 {
+  color: var(--text-color);
+  margin-bottom: 18px;
+  font-size: 24px;
+}
+
+.price {
+  font-size: 42px;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 18px;
+}
+
+.price span {
+  font-size: 15px;
+  color: #9CA3AF;
+}
+
+.plan-desc {
+  color: #6B7280;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+/* FEATURES */
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 35px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature-icon {
+  color: #FF4667;
+}
+
+/* BUTTON */
+.plan-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #FF4667;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.plan-btn:hover {
+  opacity: 0.9;
+}
