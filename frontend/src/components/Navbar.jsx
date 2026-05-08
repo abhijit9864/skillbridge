@@ -1,8 +1,7 @@
 import "../styles/navbar.css";
-
+import { useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 
-// import { useNavigate } from "react-router-dom";
 
 import {
   FaUser,
@@ -12,7 +11,7 @@ import {
 
 function Navbar() {
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const scrollToSection = (id) => {
 

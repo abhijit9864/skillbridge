@@ -18,7 +18,7 @@ function AuthLayout({ children }) {
         />
 
         <h1>
-          Welcome to <span>DreamsLMS</span> Courses.
+          Welcome to <span>SkillBridge LMS</span> Courses.
         </h1>
 
         <p>

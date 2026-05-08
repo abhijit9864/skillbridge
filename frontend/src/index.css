@@ -1,2 +1,4 @@
 @import "tailwindcss";
-
+main {
+  padding-top: 70px;
+}

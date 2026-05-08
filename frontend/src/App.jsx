@@ -1,44 +1,46 @@
-import Navbar from "./components/Navbar";
-import Hero from "./pages/Hero";
-import Benefits from "./pages/Benefits";
-import Community from "./pages/Community";
-import HowItWorks from "./pages/HowItWorks";
-import Programs from "./pages/Programs";
-import FAQ from "./pages/FAQ";
-import Testimonials from "./pages/Testimonials";
-import Pricing from "./pages/Pricing";
-import Footer from "./pages/Footer";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from "react-router-dom";
 
-// import Login from "./pages/Login";
-// import Register from "./pages/Register";
+import Landingpage from "./pages/Landingpage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+import MainLayout from "./layout/MainLayout";
+
 function App() {
+
   return (
-    <>
-  <Navbar />
-  
-  <Hero />
 
-  <Benefits />
+    <BrowserRouter>
 
-  <Community />
+      <Routes>
 
-  <HowItWorks />
+        {/* GLOBAL LAYOUT */}
+        <Route element={<MainLayout />}>
 
-  <Programs />
+          <Route
+            path="/"
+            element={<Landingpage />}
+          />
 
-  <Testimonials />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-  <FAQ />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
-  <Pricing />
+        </Route>
 
-  <Footer />
+      </Routes>
 
-  {/* login */}
-  {/* <Login /> */}
-  {/* <Register /> */}
-  
-</>
+    </BrowserRouter>
   );
 }
 
