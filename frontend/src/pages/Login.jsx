@@ -60,7 +60,7 @@ function Login() {
       <div className="auth-form-container">
 
         {/* LOGO */}
-        <div className="auth-logo">
+        {/* <div className="auth-logo">
 
           <FaGraduationCap className="auth-logo-icon" />
 
@@ -69,7 +69,7 @@ function Login() {
             <span>LMS PLATFORM</span>
           </div>
 
-        </div>
+        </div> */}
 
         <h1 className="auth-title">
           Welcome Back

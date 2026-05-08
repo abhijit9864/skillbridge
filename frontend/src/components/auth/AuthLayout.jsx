@@ -1,36 +1,75 @@
 // src/components/auth/AuthLayout.jsx
 
 import "../../styles/auth.css";
+import { NavLink } from "react-router-dom";
+import { FaGraduationCap } from "react-icons/fa";
 
 import illustration from "../../assets/Illustration Container.png";
 
 function AuthLayout({ children }) {
+
   return (
-    <div className="auth-layout">
+    <div className="auth-page">
 
-      {/* LEFT SIDE */}
-      <div className="auth-left">
+      {/* AUTH CARD */}
+      <div className="auth-card">
 
-        <img
-          src={illustration}
-          alt="illustration"
-          className="auth-illustration"
-        />
+        {/* LEFT */}
+        <div className="auth-left">
 
-        <h1>
-          Welcome to <span>SkillBridge LMS</span> Courses.
-        </h1>
+          <img
+            src={illustration}
+            alt="illustration"
+            className="auth-illustration"
+          />
 
-        <p>
-          Platform designed to help organizations, educators, and learners manage,
-          deliver, and track learning and training activities.
-        </p>
+          <h1>
+            Welcome to <span>SkillBridge LMS</span>
+          </h1>
 
-      </div>
+          <p>
+            Platform designed to help organizations,
+            educators, and learners manage, deliver,
+            and track learning experiences.
+          </p>
 
-      {/* RIGHT SIDE */}
-      <div className="auth-right">
-        {children}
+        </div>
+
+        {/* RIGHT */}
+        <div className="auth-right">
+
+          <div className="auth-header">
+            <div className="auth-brand">
+              {/* <FaGraduationCap className="auth-brand-icon" /> */}
+              <h2>Welcome Back</h2>
+              <p> Access your learning platform account</p>
+            </div>
+
+            <div className="auth-tabs">
+              <NavLink
+                to="/login"
+                end
+                className={({ isActive }) =>
+                  `auth-tab ${isActive ? "active" : ""}`
+                }
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                className={({ isActive }) =>
+                  `auth-tab ${isActive ? "active" : ""}`
+                }
+              >
+                Sign Up
+              </NavLink>
+            </div>
+          </div>
+
+          {children}
+
+        </div>
+
       </div>
 
     </div>
