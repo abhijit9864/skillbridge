@@ -6,7 +6,11 @@ import com.skillbridge.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -182,6 +186,7 @@ public class CourseService {
     // 🔥 ADD CONTENT
     public CourseContent addContent(String email,
                                     Long moduleId,
+                                    String title,
                                     ContentType type,
                                     MultipartFile file,
                                     Integer orderIndex) {
@@ -203,35 +208,90 @@ public class CourseService {
         }
 
         try {
-            if (file == null || file.isEmpty()) {
-                throw new RuntimeException("File is empty");
+
+            System.out.println("SERVICE FILE = " + file);
+            System.out.println("SERVICE EMPTY = " + (file != null ? file.isEmpty() : "NULL"));
+            System.out.println("SERVICE NAME = " + (file != null ? file.getOriginalFilename() : "NULL"));
+
+            // ✅ VIDEO validation
+            if (type == ContentType.VIDEO) {
+
+                if (file == null || file.isEmpty()) {
+                    throw new RuntimeException("Video file required");
+                }
+
+                if (file.getContentType() == null
+                        || !file.getContentType().startsWith("video/")) {
+
+                    throw new RuntimeException("Only video files allowed");
+                }
             }
 
-            String uploadPath = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
-            File dir = new File(uploadPath);
-            if (!dir.exists() && !dir.mkdirs()) {
-                throw new RuntimeException("Failed to create upload directory");
+            // ✅ PDF validation
+            if (type == ContentType.PDF) {
+
+                if (file == null || file.isEmpty()) {
+                    throw new RuntimeException("PDF file required");
+                }
+
+                if (file.getContentType() == null
+                        || !file.getContentType().equals("application/pdf")) {
+
+                    throw new RuntimeException("Only PDF files allowed");
+                }
             }
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            String fullPath = uploadPath + fileName;
+            // ✅ QUIZ validation
+            if (type == ContentType.QUIZ) {
 
-            file.transferTo(new File(fullPath));
+                if (file != null && !file.isEmpty()) {
+                    throw new RuntimeException("Quiz should not contain file");
+                }
+            }
+
+            String dbPath = null;
+
+            // ✅ save file only if exists
+            if (file != null && !file.isEmpty()) {
+
+                Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads").toAbsolutePath();
+
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+
+                String fileName = System.currentTimeMillis()
+                        + "_"
+                        + file.getOriginalFilename();
+
+                Path targetPath = uploadDir.resolve(fileName);
+
+                // ✅ NIO copy — works reliably on Windows
+                Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                dbPath = "uploads/" + fileName;
+                System.out.println("FILE SAVED TO: " + targetPath);
+            }
 
             CourseContent content = new CourseContent();
+
+            content.setTitle(title);
             content.setType(type);
-            content.setContentUrl("uploads/" + fileName);
+            content.setContentUrl(dbPath);
             content.setDuration(null);
             content.setOrderIndex(orderIndex);
             content.setModule(module);
 
             return contentRepository.save(content);
 
+        } catch (RuntimeException e) {
+            throw e; // re-throw validation errors as-is
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed (IO error): " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Upload failed: " + e.getMessage());
+            throw new RuntimeException("Upload failed: " + e.getMessage(), e);
         }
     }
-
     // 🔥 SAVE PROGRESS
     public CourseProgress saveProgress(String email,
                                        Long contentId,

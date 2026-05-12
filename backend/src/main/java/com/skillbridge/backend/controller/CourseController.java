@@ -95,20 +95,41 @@ public class CourseController {
         return courseService.addModule(email, courseId, title, orderIndex);
     }
 
-    @PostMapping(value = "/modules/{moduleId}/contents", consumes = "multipart/form-data")
+    @PostMapping(
+            value = "/modules/{moduleId}/contents",
+            consumes = "multipart/form-data"
+    )
     public CourseContent addContent(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long moduleId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("type") String type,
-            @RequestParam("orderIndex") Integer orderIndex) {
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @PathVariable
+            Long moduleId,
+
+            @RequestParam("title")
+            String title,
+
+            @RequestParam("type")
+            String type,
+
+            @RequestParam("orderIndex")
+            Integer orderIndex,
+
+            @RequestParam(value = "file", required = false)
+            MultipartFile file) {
 
         String token = authHeader.substring(7);
         String email = jwtUtil.extractEmail(token);
+        System.out.println("FILE = " + file);
+        System.out.println("IS EMPTY = " + (file != null ? file.isEmpty() : "NULL"));
+        System.out.println("NAME = " + (file != null ? file.getOriginalFilename() : "NULL"));
+        System.out.println("TYPE = " + type);
 
         return courseService.addContent(
                 email,
                 moduleId,
+                title,
                 ContentType.valueOf(type),
                 file,
                 orderIndex

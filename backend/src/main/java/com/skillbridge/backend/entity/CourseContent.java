@@ -12,6 +12,8 @@ public class CourseContent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
     @Enumerated(EnumType.STRING)
     private ContentType type; // VIDEO / PDF / QUIZ
 
@@ -29,6 +31,14 @@ public class CourseContent {
 
     // getters & setters
     public Long getId() { return id; }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public ContentType getType() { return type; }
     public void setType(ContentType type) { this.type = type; }
