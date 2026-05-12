@@ -1,17 +1,27 @@
 import "../styles/navbar.css";
+
 import { useNavigate } from "react-router-dom";
+
 import ThemeToggle from "./ThemeToggle";
 
+import Swal from "sweetalert2";
 
 import {
   FaUser,
   FaSignInAlt,
   FaGraduationCap,
+  FaBell,
 } from "react-icons/fa";
 
 function Navbar() {
 
   const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const token = localStorage.getItem("token");
+
+  const role = user?.role;
 
   const scrollToSection = (id) => {
 
@@ -24,6 +34,29 @@ function Navbar() {
       });
     }
   };
+
+  // LOGOUT FUNCTION
+  const handleLogout = () => {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    Swal.fire({
+      icon: "success",
+      title: "Logout Successful",
+      text: "You have been logged out",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    navigate("/login");
+  };
+
+  // FIRST LETTER
+  const firstLetter = user?.name
+    ? user.name.charAt(0).toUpperCase()
+    : "U";
 
   return (
     <nav className="navbar">
@@ -81,27 +114,69 @@ function Navbar() {
 
         <ThemeToggle />
 
-        <button
-          className="login-btn"
-          onClick={() => navigate("/login")}
-        >
+        {!token ? (
+          <>
+            <button
+              className="login-btn"
+              onClick={() => navigate("/login")}
+            >
 
-          <FaSignInAlt />
+              <FaSignInAlt />
 
-          Login
+              Login
 
-        </button>
+            </button>
 
-        <button
-          className="signup-btn"
-          onClick={() => navigate("/register")}
-        >
+            <button
+              className="signup-btn"
+              onClick={() => navigate("/register")}
+            >
 
-          <FaUser />
+              <FaUser />
 
-          Sign Up
+              Sign Up
 
-        </button>
+            </button>
+          </>
+        ) : (
+          <div className="user-section">
+
+            {(role === "ADMIN" ||
+              role === "SUPERADMIN" ||
+              role === "INSTRUCTOR") && (
+
+              <div
+                className="notification-icon"
+                onClick={() =>
+                  navigate("/dashboard/notifications")
+                }
+              >
+
+                <FaBell />
+
+                <span className="notification-badge">
+                  3
+                </span>
+
+              </div>
+            )}
+
+            <div
+              className="user-avatar"
+              onClick={() => navigate("/dashboard")}
+            >
+              {firstLetter}
+            </div>
+
+            {/* <button
+              className="logout-btn"
+              onClick={handleLogout}
+            >
+              Logout
+            </button> */}
+
+          </div>
+        )}
 
       </div>
 

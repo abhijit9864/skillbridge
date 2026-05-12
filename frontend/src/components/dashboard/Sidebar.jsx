@@ -1,5 +1,7 @@
 import "../styles/dashboard.css";
 
+import Swal from "sweetalert2";
+
 import {
   FaTachometerAlt,
   FaUser,
@@ -18,23 +20,40 @@ import {
 } from "react-icons/fa";
 
 function Sidebar() {
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   const role = user?.role;
 
+  // LOGOUT FUNCTION
+  const handleLogout = () => {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    Swal.fire({
+      icon: "success",
+      title: "Logout Successful",
+      text: "You have been logged out",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    window.location.href = "/login";
+  };
+
   return (
     <aside className="sidebar">
-      {/* <div className="sidebar-logo">
-        SkillBridge
-      </div> */}
 
       <ul className="sidebar-menu">
-        <li>
+
+        <li onClick={() => (window.location.href = "/dashboard")}>
           <FaTachometerAlt />
           Dashboard
         </li>
 
-        <li>
+        <li onClick={() => (window.location.href = "/dashboard/profile")}>
           <FaUser />
           My Profile
         </li>
@@ -105,11 +124,16 @@ function Sidebar() {
           Support Tickets
         </li>
 
-        <li className="logout-item">
+        <li
+          className="logout-item"
+          onClick={handleLogout}
+        >
           <FaSignOutAlt />
           Logout
         </li>
+
       </ul>
+
     </aside>
   );
 }

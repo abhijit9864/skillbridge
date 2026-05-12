@@ -27,17 +27,31 @@ public class CourseController {
     }
 
     // 🔥 CREATE COURSE
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     public Course createCourse(
-            @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody CreateCourseDto dto) {
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @RequestParam("title")
+            String title,
+
+            @RequestParam("description")
+            String description,
+
+            @RequestParam(value = "thumbnail", required = false)
+            MultipartFile thumbnail) {
 
         String token = authHeader.substring(7);
         String email = jwtUtil.extractEmail(token);
 
-        return courseService.createCourse(email, dto);
+        return courseService.createCourse(
+                email,
+                title,
+                description,
+                thumbnail
+        );
     }
-
     @PutMapping("/{id}/submit")
     public Course submitCourse(
             @RequestHeader("Authorization") String authHeader,

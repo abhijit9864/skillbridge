@@ -4,20 +4,32 @@ import { useEffect, useState } from "react";
 
 import axios from "axios";
 
+import Swal from "sweetalert2";
+
 import DashboardLayout from "../../layout/DashboardLayout";
 
-import { FaBookOpen, FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import {
+  FaBookOpen,
+  FaPlus,
+  FaTrash,
+  FaSearch,
+  FaEdit,
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
 
 import "../../styles/courses.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Courses() {
+
   const [courses, setCourses] = useState([]);
 
   const [search, setSearch] = useState("");
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user =
+    JSON.parse(localStorage.getItem("user"));
 
   const role = user?.role;
 
@@ -27,151 +39,401 @@ function Courses() {
 
   /* FETCH COURSES */
   const fetchCourses = async () => {
-    try {
-      const token = localStorage.getItem("token");
 
-      const response = await axios.get(`${API_URL}/api/courses`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${API_URL}/api/courses`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
 
       setCourses(response.data);
+
     } catch (error) {
+
       console.log(error);
     }
   };
 
+  /* APPROVE */
+  const handleApproveCourse =
+    async (courseId) => {
+
+      try {
+
+        const token =
+          localStorage.getItem("token");
+
+        await axios.put(
+          `${API_URL}/api/courses/${courseId}/approve`,
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Course Approved",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        fetchCourses();
+
+      } catch (error) {
+
+        console.log(error);
+      }
+    };
+
+  /* REJECT */
+  const handleRejectCourse =
+    async (courseId) => {
+
+      try {
+
+        const token =
+          localStorage.getItem("token");
+
+        await axios.put(
+          `${API_URL}/api/courses/${courseId}/reject`,
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Course Rejected",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        fetchCourses();
+
+      } catch (error) {
+
+        console.log(error);
+      }
+    };
+
+  /* DELETE */
+  const handleDeleteCourse =
+    async (courseId) => {
+
+      const result =
+        await Swal.fire({
+          title: "Are you sure?",
+          text:
+            "This course will be deleted",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText:
+            "Yes Delete",
+        });
+
+      if (!result.isConfirmed) return;
+
+      try {
+
+        const token =
+          localStorage.getItem("token");
+
+        await axios.delete(
+          `${API_URL}/api/courses/${courseId}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        fetchCourses();
+
+      } catch (error) {
+
+        console.log(error);
+      }
+    };
+
+  /* EDIT */
+  const handleEditCourse = (
+    courseId
+  ) => {
+
+    window.location.href =
+      `/dashboard/create-course/${courseId}`;
+  };
+
   /* FILTER */
-  const filteredCourses = courses.filter((course) =>
-    course.title?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredCourses =
+    courses.filter((course) =>
+      course.title
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
   return (
+
     <DashboardLayout>
+
       <div className="courses-page">
-        {/* TOP */}
+
+        {/* HEADER */}
+
         <div className="courses-header">
+
           <div>
+
             <h1>Courses</h1>
 
-            <p>Explore and manage learning programs.</p>
+            <p>
+              Explore and manage learning
+              programs.
+            </p>
+
           </div>
 
           <div className="courses-actions">
+
             {/* SEARCH */}
+
             <div className="search-box">
+
               <FaSearch />
 
               <input
                 type="text"
                 placeholder="Search courses..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
               />
+
             </div>
 
-            {/* CREATE BUTTON */}
-            {(role === "ADMIN" || role === "INSTRUCTOR") && (
+            {/* CREATE */}
+
+            {(role === "ADMIN" ||
+              role === "INSTRUCTOR" ||
+              role === "SUPERADMIN") && (
+
               <button
                 className="create-course-btn"
                 onClick={() =>
-                  (window.location.href = "/dashboard/create-course")
+                  (window.location.href =
+                    "/dashboard/create-course")
                 }
               >
+
                 <FaPlus />
+
                 Create Course
+
               </button>
             )}
+
           </div>
+
         </div>
 
-        {/* COURSES GRID */}
+        {/* GRID */}
+
         <div className="courses-grid">
+
           {filteredCourses.map((course) => (
-            <div className="course-card" key={course.id}>
-              {/* TOP IMAGE */}
+
+            <div
+              className="course-card"
+              key={course.id}
+            >
+
+              {/* IMAGE */}
+
               <div className="course-image">
+
                 {course.thumbnailUrl ? (
-                  <img src={course.thumbnailUrl} alt={course.title} />
+
+                  <img
+                    src={`${API_URL}/${course.thumbnailUrl}`}
+                    alt={course.title}
+                  />
+
                 ) : (
+
                   <div className="course-placeholder">
+
                     <FaBookOpen />
+
                   </div>
                 )}
 
                 {/* STATUS */}
+
                 <span
-                  className={
-                    course.status === "APPROVED"
-                      ? "course-status approved"
-                      : "course-status rejected"
-                  }
+                  className={`course-status ${course.status?.toLowerCase()}`}
                 >
+
                   {course.status}
+
                 </span>
+
               </div>
 
               {/* CONTENT */}
+
               <div className="course-content">
-                {/* TITLE */}
+
                 <h3>{course.title}</h3>
 
-                {/* DESCRIPTION */}
-                <p>{course.description}</p>
+                <p>
+                  {course.description}
+                </p>
 
-                {/* INSTRUCTOR */}
+                {/* AUTHOR */}
+
                 <div className="course-instructor">
-                  {/* PROFILE */}
-                  {course.instructor?.profileImageUrl ? (
-                    <img
-                      src={course.instructor.profileImageUrl}
-                      alt="profile"
-                      className="instructor-img"
-                    />
-                  ) : (
-                    <div className="instructor-placeholder">
-                      {course.instructor?.name?.charAt(0)}
-                    </div>
-                  )}
 
-                  {/* INFO */}
-                  <div>
-                    <h4>{course.instructor?.name}</h4>
+                  <span className="course-author">
 
-                    <span>{course.instructor?.email}</span>
-                  </div>
-                </div>
+                    {course.instructor?.name}
 
-                {/* DATE */}
-                <div className="course-date">
-                  Created: {new Date(course.createdAt).toLocaleDateString()}
+                  </span>
+
+                  <span className="course-date">
+
+                    {new Date(
+                      course.createdAt
+                    ).toLocaleDateString()}
+
+                  </span>
+
                 </div>
 
                 {/* STUDENT */}
+
                 {role === "STUDENT" && (
-                  <button className="course-btn">Continue Learning</button>
+
+                  <button className="course-btn">
+
+                    Continue Learning
+
+                  </button>
                 )}
 
-                {/* ADMIN / INSTRUCTOR */}
-                {(role === "ADMIN" || role === "INSTRUCTOR") && (
+                {/* INSTRUCTOR */}
+
+                {role === "INSTRUCTOR" && (
+
                   <div className="course-admin-actions">
-                    <button className="edit-btn">
+
+                    <button
+                      className="edit-btn"
+                      onClick={() =>
+                        handleEditCourse(
+                          course.id
+                        )
+                      }
+                    >
+
                       <FaEdit />
+
                       Edit
+
                     </button>
 
-                    <button className="delete-btn">
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        handleDeleteCourse(
+                          course.id
+                        )
+                      }
+                    >
+
                       <FaTrash />
+
                       Delete
+
                     </button>
+
                   </div>
                 )}
+
+                {/* ADMIN / SUPERADMIN */}
+
+                {(role === "ADMIN" ||
+                  role === "SUPERADMIN") && (
+
+                  <div className="course-admin-actions">
+
+                    <button
+                      className="approve-btn"
+                      onClick={() =>
+                        handleApproveCourse(
+                          course.id
+                        )
+                      }
+                    >
+
+                      <FaCheck />
+
+                      Approve
+
+                    </button>
+
+                    <button
+                      className="reject-btn"
+                      onClick={() =>
+                        handleRejectCourse(
+                          course.id
+                        )
+                      }
+                    >
+
+                      <FaTimes />
+
+                      Reject
+
+                    </button>
+
+                  </div>
+                )}
+
               </div>
+
             </div>
           ))}
+
         </div>
+
       </div>
+
     </DashboardLayout>
   );
 }

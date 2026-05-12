@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.io.File;
 
 @Service
 public class CourseService {
@@ -36,7 +37,11 @@ public class CourseService {
     }
 
     // 🔥 CREATE COURSE
-    public Course createCourse(String email, CreateCourseDto dto) {
+    public Course createCourse(
+            String email,
+            String title,
+            String description,
+            MultipartFile thumbnail) {
 
         User instructor = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -49,13 +54,55 @@ public class CourseService {
             throw new RuntimeException("Instructor must belong to an organization");
         }
 
-        Course course = new Course();
-        course.setTitle(dto.getTitle());
-        course.setDescription(dto.getDescription());
-        course.setInstructor(instructor);
-        course.setOrganization(instructor.getOrganization());
+        try {
 
-        return courseRepository.save(course);
+            String thumbnailPath = null;
+
+            // ✅ thumbnail upload
+            if (thumbnail != null && !thumbnail.isEmpty()) {
+
+                String uploadDir = System.getProperty("user.dir")
+                        + File.separator
+                        + "uploads"
+                        + File.separator;
+
+                File dir = new File(uploadDir);
+
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                String fileName = System.currentTimeMillis()
+                        + "_"
+                        + thumbnail.getOriginalFilename();
+
+                String fullPath = uploadDir + fileName;
+
+                thumbnail.transferTo(new File(fullPath));
+
+                thumbnailPath = "uploads/" + fileName;
+            }
+
+            Course course = new Course();
+
+            course.setTitle(title);
+
+            course.setDescription(description);
+
+            course.setThumbnailUrl(thumbnailPath);
+
+            course.setInstructor(instructor);
+
+            course.setOrganization(instructor.getOrganization());
+
+            return courseRepository.save(course);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Course creation failed: " + e.getMessage()
+            );
+        }
     }
 
     // 🔥 SUBMIT COURSE

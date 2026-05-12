@@ -16,6 +16,9 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     // 🔥 Course Status (Approval flow)
     @Enumerated(EnumType.STRING)
     private CourseStatus status;
@@ -51,6 +54,14 @@ public class Course {
     public String getDescription() { return description; }
 
     public void setDescription(String description) { this.description = description; }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
 
     public CourseStatus getStatus() { return status; }
 
