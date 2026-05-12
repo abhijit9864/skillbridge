@@ -106,18 +106,6 @@
 }
 
 /* RIGHT SIDE */
-
-.auth-brand h2 {
-  font-size: 28px;
-  color: #FF4667;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-weight: 700 ;
-}
-
-
 .auth-right {
   flex: 1;
 
@@ -128,12 +116,27 @@
   justify-content: center;
 }
 
+/* BRAND */
+.auth-brand h2 {
+  font-size: 28px;
+
+  color: #FF4667;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 8px;
+
+  font-weight: 700;
+}
+
 /* HEADER */
 .auth-header {
   margin-bottom: 36px;
 }
 
-/* TITLE */
+/* MAIN TITLE */
 .auth-main-title {
   font-size: 30px;
 
@@ -242,24 +245,38 @@
   font-size: 14px;
 }
 
+/* INPUT BOX */
 .input-box {
   display: flex;
   align-items: center;
   gap: 10px;
 
-  background: rgba(255,255,255,0.05);
+  background: var(--background-color);
+
+  border: 1px solid rgba(107, 114, 128, 0.18);
 
   padding: 14px 16px;
 
   border-radius: 12px;
+
+  transition: 0.3s ease;
 }
 
+/* INPUT FOCUS */
+.input-box:focus-within {
+  border-color: #FF4667;
+
+  box-shadow: 0 0 0 4px rgba(255, 70, 103, 0.08);
+}
+
+/* ICON */
 .input-icon {
   color: #9CA3AF;
 
   font-size: 14px;
 }
 
+/* INPUT */
 .input-box input,
 .input-box select {
   width: 100%;
@@ -272,6 +289,11 @@
   color: var(--text-color);
 
   font-size: 14px;
+}
+
+/* PLACEHOLDER */
+.input-box input::placeholder {
+  color: #9CA3AF;
 }
 
 /* BUTTON */
@@ -312,12 +334,11 @@
 .welcome-image {
   width: 120px;
   height: 120px;
-
   border-radius: 50%;
-
   object-fit: cover;
-
   margin-bottom: 18px;
+  display: block;
+ margin: 0 auto 18px;
 }
 
 .welcome-section h2 {
@@ -349,3 +370,36 @@
     padding: 40px 24px;
   }
 }
+
+.error-text {
+  color: #FF4667;
+
+  font-size: 13px;
+
+  margin-top: 6px;
+}
+
+/* PASSWORD RULES */
+.password-rules {
+  margin-top: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.password-rules p {
+  font-size: 13px;
+
+  transition: 0.3s ease;
+}
+
+/* INVALID */
+.invalid-rule {
+  color: #9CA3AF;
+}
+
+/* VALID */
+.valid-rule {
+  color: #22C55E;
+}  
