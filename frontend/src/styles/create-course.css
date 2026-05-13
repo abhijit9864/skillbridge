@@ -17,7 +17,7 @@
 
   padding: 24px;
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* TOP */
@@ -35,7 +35,7 @@
 }
 
 .page-top p {
-  color: #94A3B8;
+  color: #94a3b8;
 
   font-size: 14px;
 }
@@ -64,9 +64,9 @@
 /* CARD */
 
 .form-section {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
 
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 
   border-radius: 18px;
 
@@ -102,9 +102,9 @@
 .course-form select {
   width: 100%;
 
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   color: white;
 
@@ -122,7 +122,7 @@
 .course-form input:focus,
 .course-form textarea:focus,
 .course-form select:focus {
-  border-color: #3B82F6;
+  border-color: #3b82f6;
 }
 
 .course-form textarea {
@@ -156,52 +156,63 @@ input[type="file"] {
 
   object-fit: contain;
 
-  object-position: center;
+  background: rgba(255, 255, 255, 0.03);
 
   border-radius: 14px;
 
-  border: 1px solid rgba(255,255,255,0.06);
-}
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
+  padding: 10px;
+}
 /* BUTTON */
 
-.submit-course-btn {
-  width: 100%;
+.submit-btn {
+  flex: 1;
 
   border: none;
 
-  background: linear-gradient(
-    135deg,
-    #2563EB,
-    #3B82F6
-  );
+  padding: 10px;
 
-  color: white;
-
-  padding: 15px;
-
-  border-radius: 14px;
+  border-radius: 10px;
 
   cursor: pointer;
 
-  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  font-weight: 700;
+  gap: 6px;
 
-  transition: 0.3s ease;
+  font-size: 12px;
+
+  font-weight: 600;
+
+  color: white;
+
+  background: #2563eb;
+
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+
+  cursor: not-allowed;
 }
 
 .submit-course-btn:hover {
   transform: translateY(-2px);
 
-  box-shadow:
-    0 10px 25px rgba(37,99,235,0.25);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
 }
 
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
-
   .form-grid,
   .content-grid {
     grid-template-columns: 1fr;

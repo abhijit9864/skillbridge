@@ -5,6 +5,7 @@ import com.skillbridge.backend.entity.*;
 import com.skillbridge.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.skillbridge.backend.dto.CourseLearnDto;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.io.File;
+import java.util.ArrayList;
 
 @Service
 public class CourseService {
@@ -379,5 +381,65 @@ public class CourseService {
         return progressRepository
                 .findByUserIdAndContentId(user.getId(), contentId)
                 .orElse(null);
+    }
+
+    public CourseLearnDto getCourseLearn(Long courseId) {
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        CourseLearnDto dto = new CourseLearnDto();
+
+        dto.setId(course.getId());
+        dto.setTitle(course.getTitle());
+        dto.setDescription(course.getDescription());
+        dto.setThumbnailUrl(course.getThumbnailUrl());
+
+        List<CourseModule> modules =
+                moduleRepository.findByCourseIdOrderByOrderIndex(courseId);
+
+        List<CourseLearnDto.ModuleDto> moduleDtos =
+                new ArrayList<>();
+
+        for (CourseModule module : modules) {
+
+            CourseLearnDto.ModuleDto moduleDto =
+                    new CourseLearnDto.ModuleDto();
+
+            moduleDto.setId(module.getId());
+            moduleDto.setTitle(module.getTitle());
+            moduleDto.setOrderIndex(module.getOrderIndex());
+
+            List<CourseContent> contents =
+                    contentRepository.findByModuleIdOrderByOrderIndex(
+                            module.getId()
+                    );
+
+            List<CourseLearnDto.ContentDto> contentDtos =
+                    new ArrayList<>();
+
+            for (CourseContent content : contents) {
+
+                CourseLearnDto.ContentDto contentDto =
+                        new CourseLearnDto.ContentDto();
+
+                contentDto.setId(content.getId());
+                contentDto.setTitle(content.getTitle());
+                contentDto.setType(content.getType().name());
+                contentDto.setContentUrl(content.getContentUrl());
+                contentDto.setDuration(content.getDuration());
+                contentDto.setOrderIndex(content.getOrderIndex());
+
+                contentDtos.add(contentDto);
+            }
+
+            moduleDto.setContents(contentDtos);
+
+            moduleDtos.add(moduleDto);
+        }
+
+        dto.setModules(moduleDtos);
+
+        return dto;
     }
 }

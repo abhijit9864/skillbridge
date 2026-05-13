@@ -13,6 +13,7 @@ import com.skillbridge.backend.entity.CourseContent;
 import com.skillbridge.backend.entity.ContentType;
 import org.springframework.web.multipart.MultipartFile;
 import com.skillbridge.backend.entity.CourseProgress;
+import com.skillbridge.backend.dto.CourseLearnDto;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -172,6 +173,11 @@ public class CourseController {
 
         return courseService.getProgress(email, contentId);
     }
+    @GetMapping("/{courseId}/learn")
+    public CourseLearnDto getCourseLearn(
+            @PathVariable Long courseId) {
 
+        return courseService.getCourseLearn(courseId);
+    }
 
 }
