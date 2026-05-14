@@ -23,6 +23,8 @@ import "../../styles/courses.css";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Courses() {
+  const [loading, setLoading] = useState(false);
+
   const [courses, setCourses] = useState([]);
 
   const [search, setSearch] = useState("");
@@ -200,7 +202,13 @@ function Courses() {
 
         <div className="courses-grid">
           {filteredCourses.map((course) => (
-            <div className="course-card" key={course.id}>
+            <div
+              className="course-card"
+              key={course.id}
+              onClick={() =>
+                (window.location.href = `/courses/${course.id}/learn`)
+              }
+            >
               {/* IMAGE */}
 
               <div className="course-image">
@@ -257,7 +265,11 @@ function Courses() {
                   <div className="course-admin-actions">
                     <button
                       className="edit-btn"
-                      onClick={() => handleEditCourse(course.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        handleEditCourse(course.id);
+                      }}
                     >
                       <FaEdit />
                       Edit
@@ -298,7 +310,11 @@ function Courses() {
                     >
                       <FaCheck />
 
-                      {course.status === "PENDING" ? "Submitted" : "Submit"}
+                      {course.status === "PENDING"
+                        ? "Submitted"
+                        : course.status === "APPROVED"
+                          ? "Approved"
+                          : "Submit"}
                     </button>
                   </div>
                 )}

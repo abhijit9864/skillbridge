@@ -442,4 +442,38 @@ public class CourseService {
 
         return dto;
     }
+
+    //Update Module
+    public CourseModule updateModule(
+            String email,
+            Long moduleId,
+            String title,
+            Integer orderIndex) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CourseModule module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+
+        if (!module.getCourse()
+                .getInstructor()
+                .getId()
+                .equals(user.getId())) {
+
+            throw new RuntimeException("Unauthorized");
+        }
+
+        module.setTitle(title);
+        module.setOrderIndex(orderIndex);
+
+        return moduleRepository.save(module);
+    }
+
+    public CourseContent getContent(Long contentId) {
+
+        return contentRepository.findById(contentId)
+                .orElseThrow(() ->
+                        new RuntimeException("Content not found"));
+    }
 }

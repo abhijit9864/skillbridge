@@ -180,4 +180,32 @@ public class CourseController {
         return courseService.getCourseLearn(courseId);
     }
 
+    @PutMapping("/modules/{moduleId}")
+    public CourseModule updateModule(
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @PathVariable Long moduleId,
+
+            @RequestBody Map<String, Object> body) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService.updateModule(
+                email,
+                moduleId,
+                (String) body.get("title"),
+                (Integer) body.get("orderIndex")
+        );
+    }
+
+    @GetMapping("/contents/{contentId}")
+    public CourseContent getContent(
+            @PathVariable Long contentId) {
+
+        return courseService.getContent(contentId);
+    }
+
 }

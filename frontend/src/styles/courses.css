@@ -311,7 +311,7 @@
 .edit-btn,
 .delete-btn,
 .approve-btn,
-.reject-btn {
+.reject-btn,.submit-btn {
   flex: 1;
 
   border: none;
@@ -336,11 +336,18 @@
 
   transition: 0.3s;
 }
+.submit-btn:disabled {
+  opacity: 0.6;
 
+  cursor: not-allowed;
+
+  transform: none !important;
+}
 .edit-btn:hover,
 .delete-btn:hover,
 .approve-btn:hover,
-.reject-btn:hover {
+.reject-btn:hover,
+.submit-btn:hover {
   transform: translateY(-2px);
 }
 
@@ -359,7 +366,9 @@
 .reject-btn {
   background: #DC2626;
 }
-
+.submit-btn{
+  background: #16A34A;
+}
 /* STUDENT BUTTON */
 
 .course-btn {

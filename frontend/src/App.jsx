@@ -7,6 +7,8 @@ import DashboardHome from "./pages/dashboard/DashboardHome";
 import Courses from "./pages/dashboard/Courses";
 import MainLayout from "./layout/MainLayout";
 import CreateCourse from "./pages/dashboard/CreateCourse";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LearnCourse from "./pages/LearnCourse";
 
 function App() {
   return (
@@ -20,11 +22,49 @@ function App() {
 
           <Route path="/register" element={<Register />} />
 
-          <Route path="/dashboard" element={<DashboardHome />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardHome />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/dashboard/courses" element={<Courses />} />
+          <Route
+            path="/dashboard/courses"
+            element={
+              <ProtectedRoute>
+                <Courses />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/dashboard/create-course" element={<CreateCourse />} />
+          <Route
+            path="/dashboard/create-course"
+            element={
+              <ProtectedRoute>
+                <CreateCourse />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/courses/:courseId/learn"
+            element={
+              <ProtectedRoute>
+                <LearnCourse />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/create-course/:courseId"
+            element={
+              <ProtectedRoute>
+                <CreateCourse />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>
