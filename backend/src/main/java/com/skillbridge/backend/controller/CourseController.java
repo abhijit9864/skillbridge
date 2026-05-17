@@ -1,7 +1,7 @@
 package com.skillbridge.backend.controller;
 
 import com.skillbridge.backend.config.JwtUtil;
-import com.skillbridge.backend.dto.CreateCourseDto;
+import com.skillbridge.backend.dto.*;
 import com.skillbridge.backend.entity.Course;
 import com.skillbridge.backend.service.CourseService;
 import jakarta.validation.Valid;
@@ -13,7 +13,6 @@ import com.skillbridge.backend.entity.CourseContent;
 import com.skillbridge.backend.entity.ContentType;
 import org.springframework.web.multipart.MultipartFile;
 import com.skillbridge.backend.entity.CourseProgress;
-import com.skillbridge.backend.dto.CourseLearnDto;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -208,4 +207,50 @@ public class CourseController {
         return courseService.getContent(contentId);
     }
 
+    @GetMapping("/student/dashboard")
+    public StudentDashboardDto getStudentDashboard(
+            @RequestHeader("Authorization")
+            String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService.getStudentDashboard(email);
+    }
+
+    @GetMapping("/instructor/dashboard")
+    public InstructorDashboardDto getInstructorDashboard(
+            @RequestHeader("Authorization")
+            String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService.getInstructorDashboard(email);
+    }
+    @GetMapping("/admin/dashboard")
+    public AdminDashboardDto getAdminDashboard(
+            @RequestHeader("Authorization")
+            String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService.getAdminDashboard(email);
+    }
+    @GetMapping("/super-admin/dashboard")
+    public SuperAdminDashboardDto getSuperAdminDashboard(
+            @RequestHeader("Authorization")
+            String authHeader) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService
+                .getSuperAdminDashboard(email);
+    }
 }

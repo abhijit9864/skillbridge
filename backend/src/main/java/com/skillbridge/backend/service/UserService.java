@@ -9,7 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import com.skillbridge.backend.entity.Role;
 import com.skillbridge.backend.dto.UpdateProfileDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.io.File;
 import java.util.List;
 
@@ -181,5 +186,50 @@ public class UserService {
         dto.setProfileImageUrl(user.getProfileImageUrl());
 
         return dto;
+    }
+    public Page<UserResponseDto> getOrganizationStudents(
+            String email,
+            int page,
+            int size,
+            String search) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if (user.getRole() != Role.INSTRUCTOR
+                && user.getRole() != Role.ADMIN) {
+
+            throw new RuntimeException(
+                    "Access denied"
+            );
+        }
+
+        Pageable pageable =
+                PageRequest.of(page, size);
+
+        Page<User> students;
+
+        // ✅ search
+        if (search != null && !search.isBlank()) {
+
+            students = userRepository.searchStudents(
+                    user.getOrganization().getId(),
+                    Role.STUDENT,
+                    search,
+                    pageable
+            );
+
+        } else {
+
+            students =
+                    userRepository.findByOrganizationIdAndRole(
+                            user.getOrganization().getId(),
+                            Role.STUDENT,
+                            pageable
+                    );
+        }
+
+        return students.map(this::mapToDto);
     }
 }

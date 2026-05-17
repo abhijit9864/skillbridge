@@ -8,6 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.skillbridge.backend.entity.User;
 import java.util.List;
 import com.skillbridge.backend.dto.UpdateProfileDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/users")
@@ -73,5 +76,31 @@ public class UserController {
         String email = jwtUtil.extractEmail(token);
 
         return userService.updateProfile(email, dto);
+    }
+    @GetMapping("/students")
+    public Page<UserResponseDto> getOrganizationStudents(
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "")
+            String search) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return userService.getOrganizationStudents(
+                email,
+                page,
+                size,
+                search
+        );
     }
 }

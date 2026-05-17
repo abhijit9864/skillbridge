@@ -1,11 +1,10 @@
 package com.skillbridge.backend.service;
 
-import com.skillbridge.backend.dto.CreateCourseDto;
+import com.skillbridge.backend.dto.*;
 import com.skillbridge.backend.entity.*;
 import com.skillbridge.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.skillbridge.backend.dto.CourseLearnDto;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,18 +23,20 @@ public class CourseService {
     private final CourseModuleRepository moduleRepository;
     private final CourseContentRepository contentRepository;
     private final CourseProgressRepository progressRepository;
+    private final OrganizationRepository organizationRepository;
 
     public CourseService(CourseRepository courseRepository,
                          UserRepository userRepository,
                          CourseModuleRepository moduleRepository,
                          CourseContentRepository contentRepository,
-                         CourseProgressRepository progressRepository) {
+                         CourseProgressRepository progressRepository, OrganizationRepository organizationRepository) {
 
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.moduleRepository = moduleRepository;
         this.contentRepository = contentRepository;
         this.progressRepository = progressRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     // 🔥 CREATE COURSE
@@ -475,5 +476,365 @@ public class CourseService {
         return contentRepository.findById(contentId)
                 .orElseThrow(() ->
                         new RuntimeException("Content not found"));
+    }
+
+    public StudentDashboardDto getStudentDashboard(String email) {
+
+        User student = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<CourseProgress> progresses =
+                progressRepository.findByUserId(student.getId());
+
+        StudentDashboardDto dto =
+                new StudentDashboardDto();
+
+        // ✅ total learning minutes
+        int totalMinutes = progresses.stream()
+                .mapToInt(p ->
+                        p.getLastWatchedTime() != null
+                                ? p.getLastWatchedTime() / 60
+                                : 0
+                )
+                .sum();
+
+        dto.setTotalLearningMinutes(totalMinutes);
+
+        // ✅ active courses
+        long activeCourses = progresses.stream()
+                .map(p ->
+                        p.getContent()
+                                .getModule()
+                                .getCourse()
+                                .getId()
+                )
+                .distinct()
+                .count();
+
+        dto.setActiveCourses((int) activeCourses);
+
+        // ✅ completion rate
+        double avgProgress = progresses.stream()
+                .mapToDouble(p ->
+                        p.getProgressPercent() != null
+                                ? p.getProgressPercent()
+                                : 0
+                )
+                .average()
+                .orElse(0);
+
+        dto.setCompletionRate(avgProgress);
+
+        // ✅ continue learning
+        List<StudentDashboardDto.ContinueLearningDto>
+                continueDtos = new ArrayList<>();
+
+        for (CourseProgress progress : progresses) {
+
+            Course course = progress.getContent()
+                    .getModule()
+                    .getCourse();
+
+            StudentDashboardDto.ContinueLearningDto item =
+                    new StudentDashboardDto.ContinueLearningDto();
+
+            item.setCourseId(course.getId());
+
+            item.setCourseTitle(course.getTitle());
+
+            item.setThumbnailUrl(course.getThumbnailUrl());
+
+            item.setLastContentTitle(
+                    progress.getContent().getTitle()
+            );
+
+            item.setProgressPercent(
+                    progress.getProgressPercent() != null
+                            ? progress.getProgressPercent().intValue()
+                            : 0
+            );
+
+            continueDtos.add(item);
+        }
+
+        dto.setContinueLearning(continueDtos);
+
+        return dto;
+    }
+    public InstructorDashboardDto getInstructorDashboard(
+            String email) {
+
+        User instructor = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        List<Course> courses =
+                courseRepository.findByInstructor(instructor);
+
+        InstructorDashboardDto dto =
+                new InstructorDashboardDto();
+
+        dto.setTotalCourses(courses.size());
+
+        dto.setApprovedCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.APPROVED)
+                        .count()
+        );
+
+        dto.setPendingCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.PENDING)
+                        .count()
+        );
+
+        dto.setDraftCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.DRAFT)
+                        .count()
+        );
+
+        dto.setRejectedCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.REJECTED)
+                        .count()
+        );
+
+        // ✅ total modules
+        int moduleCount = 0;
+
+        // ✅ total contents
+        int contentCount = 0;
+
+        for (Course course : courses) {
+
+            List<CourseModule> modules =
+                    moduleRepository
+                            .findByCourseIdOrderByOrderIndex(
+                                    course.getId()
+                            );
+
+            moduleCount += modules.size();
+
+            for (CourseModule module : modules) {
+
+                List<CourseContent> contents =
+                        contentRepository
+                                .findByModuleIdOrderByOrderIndex(
+                                        module.getId()
+                                );
+
+                contentCount += contents.size();
+            }
+        }
+
+        dto.setTotalModules(moduleCount);
+
+        dto.setTotalContents(contentCount);
+
+        // ✅ recent courses
+        List<InstructorDashboardDto.RecentCourseDto>
+                recentDtos = new ArrayList<>();
+
+        for (Course course : courses) {
+
+            InstructorDashboardDto.RecentCourseDto item =
+                    new InstructorDashboardDto.RecentCourseDto();
+
+            item.setId(course.getId());
+
+            item.setTitle(course.getTitle());
+
+            item.setThumbnailUrl(course.getThumbnailUrl());
+
+            item.setStatus(course.getStatus().name());
+
+            recentDtos.add(item);
+        }
+
+        dto.setRecentCourses(recentDtos);
+
+        return dto;
+    }
+    public AdminDashboardDto getAdminDashboard(
+            String email) {
+
+        User admin = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if (admin.getRole() != Role.ADMIN) {
+            throw new RuntimeException("Only admin allowed");
+        }
+
+        Long orgId = admin.getOrganization().getId();
+
+        AdminDashboardDto dto =
+                new AdminDashboardDto();
+
+        // ✅ users
+        dto.setTotalUsers(
+                userRepository.countByOrganizationId(orgId)
+        );
+
+        dto.setTotalStudents(
+                userRepository.countByOrganizationIdAndRole(
+                        orgId,
+                        Role.STUDENT
+                )
+        );
+
+        dto.setTotalInstructors(
+                userRepository.countByOrganizationIdAndRole(
+                        orgId,
+                        Role.INSTRUCTOR
+                )
+        );
+
+        List<Course> courses =
+                courseRepository.findByOrganizationId(orgId);
+
+        dto.setApprovedCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.APPROVED)
+                        .count()
+        );
+
+        dto.setPendingCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.PENDING)
+                        .count()
+        );
+
+        dto.setRejectedCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.REJECTED)
+                        .count()
+        );
+
+        // ✅ pending approval list
+        List<AdminDashboardDto.PendingCourseDto>
+                pendingDtos = new ArrayList<>();
+
+        for (Course course : courses) {
+
+            if (course.getStatus() == CourseStatus.PENDING) {
+
+                AdminDashboardDto.PendingCourseDto item =
+                        new AdminDashboardDto.PendingCourseDto();
+
+                item.setId(course.getId());
+
+                item.setTitle(course.getTitle());
+
+                item.setThumbnailUrl(
+                        course.getThumbnailUrl()
+                );
+
+                item.setInstructorName(
+                        course.getInstructor().getName()
+                );
+
+                pendingDtos.add(item);
+            }
+        }
+
+        dto.setPendingCoursesList(pendingDtos);
+
+        return dto;
+    }
+    public SuperAdminDashboardDto getSuperAdminDashboard(
+            String email) {
+
+        User superAdmin = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if (superAdmin.getRole() != Role.SUPER_ADMIN) {
+
+            throw new RuntimeException(
+                    "Only super admin allowed"
+            );
+        }
+
+        SuperAdminDashboardDto dto =
+                new SuperAdminDashboardDto();
+
+        List<Organization> organizations =
+                organizationRepository.findAll();
+
+        List<Course> courses =
+                courseRepository.findAll();
+
+        dto.setTotalOrganizations(
+                organizations.size()
+        );
+
+        dto.setTotalUsers(
+                userRepository.findAll().size()
+        );
+
+        dto.setTotalStudents(
+                userRepository.countByRole(Role.STUDENT)
+        );
+
+        dto.setTotalInstructors(
+                userRepository.countByRole(Role.INSTRUCTOR)
+        );
+
+        dto.setTotalAdmins(
+                userRepository.countByRole(Role.ADMIN)
+        );
+
+        dto.setTotalCourses(
+                courses.size()
+        );
+
+        dto.setApprovedCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.APPROVED)
+                        .count()
+        );
+
+        dto.setPendingCourses(
+                (int) courses.stream()
+                        .filter(c ->
+                                c.getStatus() == CourseStatus.PENDING)
+                        .count()
+        );
+
+        // ✅ org list
+        List<SuperAdminDashboardDto.OrganizationDto>
+                orgDtos = new ArrayList<>();
+
+        for (Organization org : organizations) {
+
+            SuperAdminDashboardDto.OrganizationDto item =
+                    new SuperAdminDashboardDto.OrganizationDto();
+
+            item.setId(org.getId());
+
+            item.setName(org.getName());
+
+            item.setDomain(org.getDomain());
+
+            item.setSubscriptionPlan(
+                    org.getSubscriptionPlan()
+            );
+
+            orgDtos.add(item);
+        }
+
+        dto.setOrganizations(orgDtos);
+
+        return dto;
     }
 }

@@ -4,9 +4,7 @@ import Swal from "sweetalert2";
 
 import {
   FaTachometerAlt,
-  FaUser,
   FaBook,
-  FaBullhorn,
   FaTasks,
   FaUsers,
   FaClipboardList,
@@ -14,7 +12,6 @@ import {
   FaMoneyBill,
   FaWallet,
   FaFileInvoice,
-  FaEnvelope,
   FaHeadset,
   FaSignOutAlt,
 } from "react-icons/fa";
@@ -53,28 +50,18 @@ function Sidebar() {
           Dashboard
         </li>
 
-        <li onClick={() => (window.location.href = "/dashboard/profile")}>
-          <FaUser />
-          My Profile
-        </li>
-
         <li onClick={() => (window.location.href = "/dashboard/courses")}>
           <FaBook />
           Courses
         </li>
 
-        <li>
-          <FaBullhorn />
-          Announcements
-        </li>
-
-        <li>
+        <li onClick={() => (window.location.href = "/dashboard/assignments")}>
           <FaTasks />
           Assignments
         </li>
 
-        {role === "ADMIN" && (
-          <li>
+        {role !== "STUDENT" && (
+          <li onClick={() => (window.location.href = "/dashboard/students")}>
             <FaUsers />
             Students
           </li>
@@ -113,11 +100,6 @@ function Sidebar() {
             </li>
           </>
         )}
-
-        <li>
-          <FaEnvelope />
-          Messages
-        </li>
 
         <li>
           <FaHeadset />

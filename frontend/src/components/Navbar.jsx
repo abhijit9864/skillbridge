@@ -81,33 +81,35 @@ function Navbar() {
       </div>
 
       {/* CENTER */}
-      <ul className="nav-links">
+      {!token && (
+        <ul className="nav-links">
 
-        <li onClick={() => scrollToSection("hero")}>
-          Home
-        </li>
+          <li onClick={() => scrollToSection("hero")}>
+            Home
+          </li>
 
-        <li onClick={() => scrollToSection("benefits")}>
-          Benefits
-        </li>
+          <li onClick={() => scrollToSection("benefits")}>
+            Benefits
+          </li>
 
-        <li onClick={() => scrollToSection("community")}>
-          Community
-        </li>
+          <li onClick={() => scrollToSection("community")}>
+            Community
+          </li>
 
-        <li onClick={() => scrollToSection("workflow")}>
-          Workflow
-        </li>
+          <li onClick={() => scrollToSection("workflow")}>
+            Workflow
+          </li>
 
-        <li onClick={() => scrollToSection("pricing")}>
-          Pricing
-        </li>
+          <li onClick={() => scrollToSection("pricing")}>
+            Pricing
+          </li>
 
-        <li onClick={() => scrollToSection("faq")}>
-          FAQ
-        </li>
+          <li onClick={() => scrollToSection("faq")}>
+            FAQ
+          </li>
 
-      </ul>
+        </ul>
+      )}
 
       {/* RIGHT */}
       <div className="nav-actions">
@@ -161,19 +163,18 @@ function Navbar() {
               </div>
             )}
 
+            {/* USER NAME */}
+            <span className="user-name">
+              {user?.name}
+            </span>
+
+            {/* USER AVATAR */}
             <div
               className="user-avatar"
               onClick={() => navigate("/dashboard")}
             >
               {firstLetter}
             </div>
-
-            {/* <button
-              className="logout-btn"
-              onClick={handleLogout}
-            >
-              Logout
-            </button> */}
 
           </div>
         )}

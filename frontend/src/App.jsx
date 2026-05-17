@@ -9,6 +9,7 @@ import MainLayout from "./layout/MainLayout";
 import CreateCourse from "./pages/dashboard/CreateCourse";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LearnCourse from "./pages/LearnCourse";
+import StudentInfo from "./pages/studentinfo";
 
 function App() {
   return (
@@ -65,6 +66,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/students"
+            element={
+              <ProtectedRoute>
+                <StudentInfo />
+              </ProtectedRoute>
+            }
+            />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,17 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { useParams } from "react-router-dom";
+
 import axios from "axios";
+
+import {
+  FaFilePdf,
+  FaPlayCircle,
+  FaBookOpen,
+} from "react-icons/fa";
+
 import "../styles/LearnCourse.css";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL =
+  import.meta.env.VITE_API_URL;
 
 const LearnCourse = () => {
 
-  const { courseId } = useParams();
+  const { courseId } =
+    useParams();
 
-  const [course, setCourse] = useState(null);
+  const videoRef =
+    useRef(null);
 
-  const [selectedContent, setSelectedContent] =
+  const [course, setCourse] =
     useState(null);
+
+  const [selectedModule,
+    setSelectedModule] =
+    useState(null);
+
+  const [selectedContent,
+    setSelectedContent] =
+    useState(null);
+
+  /* FETCH COURSE */
 
   useEffect(() => {
 
@@ -26,26 +53,38 @@ const LearnCourse = () => {
       const token =
         localStorage.getItem("token");
 
-      const response = await axios.get(
-        `${API_URL}/api/courses/${courseId}/learn`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await axios.get(
+          `${API_URL}/api/courses/${courseId}/learn`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
-      setCourse(response.data);
+      const courseData =
+        response.data;
 
-      // default first video
+      setCourse(courseData);
+
+      /* DEFAULT MODULE */
+
       if (
-        response.data.modules.length > 0 &&
-        response.data.modules[0].contents.length > 0
+        courseData.modules?.length > 0
       ) {
 
-        setSelectedContent(
-          response.data.modules[0].contents[0]
+        const firstModule =
+          courseData.modules[0];
+
+        setSelectedModule(
+          firstModule
         );
+
+        /* NO DEFAULT VIDEO */
+
+        setSelectedContent(null);
       }
 
     } catch (error) {
@@ -54,74 +93,395 @@ const LearnCourse = () => {
     }
   };
 
+  /* FETCH PROGRESS */
+
+  const fetchProgress =
+    async (contentId) => {
+
+      try {
+
+        const token =
+          localStorage.getItem("token");
+
+        const response =
+          await axios.get(
+            `${API_URL}/api/courses/progress/${contentId}`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const lastTime =
+          response.data
+            ?.lastWatchedTime;
+
+        setTimeout(() => {
+
+          if (
+            videoRef.current &&
+            lastTime
+          ) {
+
+            videoRef.current.currentTime =
+              lastTime;
+          }
+
+        }, 1000);
+
+      } catch (error) {
+
+        console.log(error);
+      }
+    };
+
+  /* SAVE PROGRESS */
+
+  const saveProgress =
+    async () => {
+
+      try {
+
+        if (
+          !videoRef.current ||
+          !selectedContent
+        ) {
+          return;
+        }
+
+        const token =
+          localStorage.getItem("token");
+
+        await axios.post(
+          `${API_URL}/api/courses/progress`,
+          {
+            contentId:
+              selectedContent.id,
+
+            lastWatchedTime:
+              Math.floor(
+                videoRef.current
+                  .currentTime
+              ),
+          },
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      } catch (error) {
+
+        console.log(error);
+      }
+    };
+
+  /* AUTO SAVE */
+
+  useEffect(() => {
+
+    const interval =
+      setInterval(() => {
+
+        saveProgress();
+
+      }, 10000);
+
+    return () =>
+      clearInterval(interval);
+
+  }, [selectedContent]);
+
+  /* CONTENT CLICK */
+
+  const handleContentClick =
+    async (content) => {
+
+      setSelectedContent(
+        content
+      );
+
+      fetchProgress(content.id);
+    };
+
+  /* LOADING */
+
   if (!course) {
-    return <h2>Loading...</h2>;
+
+    return (
+
+      <div className="learn-loading">
+
+        Loading...
+
+      </div>
+    );
   }
 
   return (
+
     <div className="learn-page">
 
-      {/* LEFT VIDEO SECTION */}
-      <div className="video-section">
+      {/* LEFT */}
 
-        <h1>{course.title}</h1>
+      <div className="learn-left">
 
-        <p>{course.description}</p>
+        {/* COURSE HEADER */}
 
-        {selectedContent && (
-          <div className="video-player">
+        <div className="course-header">
 
-            <video
-              controls
-              width="100%"
-              height="500"
-              src={`${API_URL}/${selectedContent.contentUrl}`}
-            />
+          <h1 className="course-title">
+            {course?.title}
+          </h1>
 
-            <h2>{selectedContent.title}</h2>
+          {/* <p className="course-description">
+            {course?.description}
+          </p> */}
 
-          </div>
-        )}
+        </div>
 
-      </div>
+        {/* VIDEO WRAPPER */}
 
-      {/* RIGHT MODULE SECTION */}
-      <div className="module-section">
+        <div className="video-wrapper">
 
-        <h2>Course Content</h2>
+          {!selectedContent ? (
 
-        {course.modules.map((module) => (
+            <div className="course-preview">
 
-          <div
-            key={module.id}
-            className="module-card"
-          >
+              <h2>
+                Welcome to {course?.title}
+              </h2>
 
-            <h3>{module.title}</h3>
+              <p>
+                Select any lesson from the
+                right sidebar to start
+                learning.
+              </p>
 
-            {module.contents.map((content) => (
+            </div>
 
-              <div
-                key={content.id}
-                className={`content-item ${
-                  selectedContent?.id === content.id
-                    ? "active-content"
-                    : ""
-                }`}
-                onClick={() =>
-                  setSelectedContent(content)
-                }
-              >
+          ) : (
 
-                ▶ {content.title}
+            <>
+              {/* TOP INFO */}
+
+              <div className="video-top-info">
+
+                <span className="chapter-badge">
+                  {selectedModule?.title}
+                </span>
+
+                <h2 className="content-title">
+                  {selectedContent?.title}
+                </h2>
 
               </div>
 
-            ))}
+              {/* VIDEO / PDF */}
 
-          </div>
+              {selectedContent.type ===
+                "VIDEO" ? (
 
-        ))}
+                <video
+                  ref={videoRef}
+                  controls
+                  className="video-player"
+                  src={`${API_URL}/${selectedContent.contentUrl}`}
+                />
+
+              ) : (
+
+                <iframe
+                  title="PDF"
+                  className="pdf-viewer"
+                  src={`${API_URL}/${selectedContent.contentUrl}`}
+                />
+
+              )}
+
+              {/* DESCRIPTION */}
+
+              <div className="video-description">
+
+                <h3>
+                  About this Course
+                </h3>
+
+                <p>
+                  {course?.description}
+                </p>
+
+              </div>
+
+            </>
+          )}
+
+        </div>
+
+      </div>
+
+      {/* RIGHT SIDEBAR */}
+
+      <div className="learn-right">
+
+        <div className="sidebar-top">
+
+          <h2>
+
+            <FaBookOpen />
+
+            Course Content
+
+          </h2>
+
+        </div>
+
+        {course.modules.map(
+          (module) => (
+
+            <div
+              key={module.id}
+              className={`sidebar-module ${selectedModule?.id ===
+                  module.id
+                  ? "active-sidebar-module"
+                  : ""
+                }`}
+            >
+
+              {/* MODULE HEADER */}
+
+              <div
+                className="sidebar-module-header"
+                onClick={() =>
+                  setSelectedModule(
+                    module
+                  )
+                }
+              >
+
+                <h3>
+                  {module.title}
+                </h3>
+
+              </div>
+
+              {/* CONTENTS */}
+
+              {selectedModule?.id ===
+                module.id && (
+
+                  <div className="sidebar-content-list">
+
+                    {module.contents
+                      ?.length > 0 ? (
+
+                      <>
+                        {module.contents.map(
+                          (content) => (
+
+                            <div
+                              key={content.id}
+                              className={`sidebar-content-item ${selectedContent?.id ===
+                                  content.id
+                                  ? "active-content"
+                                  : ""
+                                }`}
+                              onClick={() =>
+                                handleContentClick(
+                                  content
+                                )
+                              }
+                            >
+
+                              <FaPlayCircle />
+
+                              <span>
+                                {content.title}
+                              </span>
+
+                            </div>
+                          )
+                        )}
+
+                        {/* PDF */}
+
+                        <div
+                          className="extra-learning-card"
+                        >
+
+                          <FaFilePdf />
+
+                          <span>
+                            Chapter PDF Notes
+                          </span>
+
+                        </div>
+
+                        {/* ASSESSMENT */}
+
+                        <div
+                          className="extra-learning-card assessment-card"
+                        >
+
+                          📝
+
+                          <span>
+                            Chapter Assessment
+                          </span>
+
+                        </div>
+                      </>
+
+                    ) : (
+
+                      <div className="empty-content">
+
+                        No content available
+
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+            </div>
+          )
+        )}
+
+        <button
+  className="quiz-card"
+  onClick={() =>
+    navigate(`/courses/${courseId}/quiz`)
+  }
+>
+
+  <div className="quiz-icon">
+
+    🎯
+
+  </div>
+
+  <div className="quiz-info">
+
+    <h4>
+      Final Quiz
+    </h4>
+
+    <p>
+      Test your knowledge
+    </p>
+
+  </div>
+
+  <span className="quiz-arrow">
+    →
+  </span>
+
+</button>
 
       </div>
 
