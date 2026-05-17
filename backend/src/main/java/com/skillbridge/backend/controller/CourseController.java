@@ -5,6 +5,7 @@ import com.skillbridge.backend.dto.*;
 import com.skillbridge.backend.entity.Course;
 import com.skillbridge.backend.service.CourseService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.skillbridge.backend.entity.CourseModule;
@@ -24,6 +25,37 @@ public class CourseController {
     public CourseController(CourseService courseService, JwtUtil jwtUtil) {
         this.courseService = courseService;
         this.jwtUtil = jwtUtil;
+    }
+
+    @GetMapping
+    public Page<Course> getCourses(
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "8")
+            int size,
+
+            @RequestParam(defaultValue = "")
+            String search,
+
+            @RequestParam(required = false)
+            String status) {
+
+        String token = authHeader.substring(7);
+
+        String email = jwtUtil.extractEmail(token);
+
+        return courseService.getCourses(
+                email,
+                page,
+                size,
+                search,
+                status
+        );
     }
 
     // 🔥 CREATE COURSE
@@ -83,15 +115,6 @@ public class CourseController {
         String email = jwtUtil.extractEmail(token);
 
         return courseService.rejectCourse(email, id);
-    }
-    @GetMapping
-    public List<Course> getCourses(
-            @RequestHeader("Authorization") String authHeader) {
-
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
-
-        return courseService.getCourses(email);
     }
 
     @PostMapping("/{courseId}/modules")

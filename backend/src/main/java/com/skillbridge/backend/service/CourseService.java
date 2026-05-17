@@ -14,6 +14,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.io.File;
 import java.util.ArrayList;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class CourseService {
@@ -121,7 +124,7 @@ public class CourseService {
             throw new RuntimeException("You can only submit your own course");
         }
 
-        if (course.getStatus() != CourseStatus.DRAFT) {
+        if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
             throw new RuntimeException("Only draft courses can be submitted");
         }
 
@@ -147,7 +150,7 @@ public class CourseService {
             throw new RuntimeException("Cannot approve outside your organization");
         }
 
-        if (course.getStatus() != CourseStatus.PENDING) {
+        if (course.getStatus() != CourseStatus.PENDING  && course.getStatus() != CourseStatus.REJECTED) {
             throw new RuntimeException("Course must be pending");
         }
 
@@ -177,31 +180,50 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
-    // 🔥 GET COURSES
-    public List<Course> getCourses(String email) {
+    //GET COURSE
+    public Page<Course> getCourses(
+            String email,
+            int page,
+            int size,
+            String search,
+            String status) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
-        switch (user.getRole()) {
+        Pageable pageable =
+                PageRequest.of(page, size);
 
-            case SUPER_ADMIN:
-                return courseRepository.findAll();
+        CourseStatus courseStatus = null;
 
-            case ADMIN:
-                return courseRepository.findByOrganizationId(
-                        user.getOrganization().getId()
-                );
+        // ✅ frontend status filter
+        if (status != null && !status.isBlank()) {
 
-            case INSTRUCTOR:
-                return courseRepository.findByInstructor(user);
-
-            case STUDENT:
-                return courseRepository.findByStatus(CourseStatus.APPROVED);
-
-            default:
-                throw new RuntimeException("Access denied");
+            courseStatus =
+                    CourseStatus.valueOf(
+                            status.toUpperCase()
+                    );
         }
+
+        // ✅ STUDENT ONLY APPROVED
+        if (user.getRole() == Role.STUDENT) {
+
+            return courseRepository.filterCourses(
+                    user.getOrganization().getId(),
+                    CourseStatus.APPROVED,
+                    search,
+                    pageable
+            );
+        }
+
+        // ✅ INSTRUCTOR / ADMIN / SUPERADMIN
+        return courseRepository.filterCourses(
+                user.getOrganization().getId(),
+                courseStatus,
+                search,
+                pageable
+        );
     }
 
     // 🔥 ADD MODULE
