@@ -32,6 +32,9 @@ public class CourseContent {
     @JoinColumn(name = "module_id")
     private CourseModule module;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     // getters & setters
     public Long getId() { return id; }
 
@@ -65,4 +68,12 @@ public class CourseContent {
 
     public CourseModule getModule() { return module; }
     public void setModule(CourseModule module) { this.module = module; }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
 }

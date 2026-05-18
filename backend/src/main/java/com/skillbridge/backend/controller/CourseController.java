@@ -157,7 +157,10 @@ public class CourseController {
             Integer orderIndex,
 
             @RequestParam(value = "file", required = false)
-            MultipartFile file) {
+            MultipartFile file,
+
+            @RequestParam(value = "thumbnail", required = false)
+            MultipartFile thumbnail) {
 
         String token = authHeader.substring(7);
 
@@ -186,6 +189,7 @@ public class CourseController {
                 description,
                 ContentType.valueOf(type),
                 file,
+                thumbnail,
                 orderIndex
         );
     }

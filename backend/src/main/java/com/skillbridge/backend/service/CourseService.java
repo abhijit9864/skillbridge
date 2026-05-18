@@ -27,12 +27,13 @@ public class CourseService {
     private final CourseContentRepository contentRepository;
     private final CourseProgressRepository progressRepository;
     private final OrganizationRepository organizationRepository;
+    private final NotificationRepository notificationRepository;
 
     public CourseService(CourseRepository courseRepository,
                          UserRepository userRepository,
                          CourseModuleRepository moduleRepository,
                          CourseContentRepository contentRepository,
-                         CourseProgressRepository progressRepository, OrganizationRepository organizationRepository) {
+                         CourseProgressRepository progressRepository, OrganizationRepository organizationRepository, NotificationRepository notificationRepository) {
 
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
@@ -40,8 +41,8 @@ public class CourseService {
         this.contentRepository = contentRepository;
         this.progressRepository = progressRepository;
         this.organizationRepository = organizationRepository;
+        this.notificationRepository = notificationRepository;
     }
-
     // 🔥 CREATE COURSE
     public Course createCourse(
             String email,
@@ -112,72 +113,126 @@ public class CourseService {
     }
 
     // 🔥 SUBMIT COURSE
-    public Course submitCourse(String email, Long courseId) {
+    public Course submitCourse(
+            String email,
+            Long courseId) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User instructor = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
 
-        if (!course.getInstructor().getId().equals(user.getId())) {
-            throw new RuntimeException("You can only submit your own course");
-        }
+        if (!course.getInstructor().getId()
+                .equals(instructor.getId())) {
 
-        if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
-            throw new RuntimeException("Only draft courses can be submitted");
+            throw new RuntimeException(
+                    "You can only submit your own course"
+            );
         }
 
         course.setStatus(CourseStatus.PENDING);
-        return courseRepository.save(course);
+
+        Course savedCourse =
+                courseRepository.save(course);
+
+        // ✅ notify admins
+        List<User> users =
+                userRepository.findByOrganizationId(
+                        course.getOrganization().getId()
+                );
+
+        for (User user : users) {
+
+            if (user.getRole() == Role.ADMIN) {
+
+                createNotification(
+                        user,
+                        "New Course Submission",
+                        instructor.getName()
+                                + " submitted course: "
+                                + course.getTitle()
+                );
+            }
+        }
+
+        return savedCourse;
     }
 
     // 🔥 APPROVE COURSE
-    public Course approveCourse(String email, Long courseId) {
+    public Course approveCourse(
+            String email,
+            Long courseId) {
 
         User admin = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         if (admin.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Only admin can approve courses");
+
+            throw new RuntimeException(
+                    "Only admin can approve course"
+            );
         }
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        if (!course.getOrganization().getId()
-                .equals(admin.getOrganization().getId())) {
-            throw new RuntimeException("Cannot approve outside your organization");
-        }
-
-        if (course.getStatus() != CourseStatus.PENDING  && course.getStatus() != CourseStatus.REJECTED) {
-            throw new RuntimeException("Course must be pending");
-        }
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
 
         course.setStatus(CourseStatus.APPROVED);
-        return courseRepository.save(course);
+
+        Course savedCourse =
+                courseRepository.save(course);
+
+        // ✅ notify instructor
+        createNotification(
+                course.getInstructor(),
+                "Course Approved",
+                "Your course '"
+                        + course.getTitle()
+                        + "' has been approved"
+        );
+
+        return savedCourse;
     }
 
     // 🔥 REJECT COURSE
-    public Course rejectCourse(String email, Long courseId) {
+    public Course rejectCourse(
+            String email,
+            Long courseId) {
 
         User admin = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         if (admin.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Only admin can reject courses");
+
+            throw new RuntimeException(
+                    "Only admin can reject course"
+            );
         }
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        if (!course.getOrganization().getId()
-                .equals(admin.getOrganization().getId())) {
-            throw new RuntimeException("Cannot reject outside your organization");
-        }
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found"));
 
         course.setStatus(CourseStatus.REJECTED);
-        return courseRepository.save(course);
+
+        Course savedCourse =
+                courseRepository.save(course);
+
+        // ✅ notify instructor
+        createNotification(
+                course.getInstructor(),
+                "Course Rejected",
+                "Your course '"
+                        + course.getTitle()
+                        + "' has been rejected"
+        );
+
+        return savedCourse;
     }
 
     //GET COURSE
@@ -263,6 +318,7 @@ public class CourseService {
             String description,
             ContentType type,
             MultipartFile file,
+            MultipartFile thumbnail,
             Integer orderIndex) {
 
         User user = userRepository.findByEmail(email)
@@ -343,7 +399,9 @@ public class CourseService {
 
             String dbPath = null;
 
-            // ✅ save file
+            String thumbnailPath = null;
+
+            // ✅ SAVE MAIN FILE
             if (file != null && !file.isEmpty()) {
 
                 Path uploadDir = Paths.get(
@@ -376,6 +434,45 @@ public class CourseService {
                 );
             }
 
+            // ✅ SAVE THUMBNAIL
+            if (thumbnail != null && !thumbnail.isEmpty()) {
+
+                if (thumbnail.getContentType() == null
+                        || !thumbnail.getContentType()
+                        .startsWith("image/")) {
+
+                    throw new RuntimeException(
+                            "Only image thumbnails allowed"
+                    );
+                }
+
+                Path uploadDir = Paths.get(
+                        System.getProperty("user.dir"),
+                        "uploads"
+                ).toAbsolutePath();
+
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+
+                String thumbnailName =
+                        System.currentTimeMillis()
+                                + "_thumb_"
+                                + thumbnail.getOriginalFilename();
+
+                Path thumbnailTarget =
+                        uploadDir.resolve(thumbnailName);
+
+                Files.copy(
+                        thumbnail.getInputStream(),
+                        thumbnailTarget,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
+
+                thumbnailPath =
+                        "uploads/" + thumbnailName;
+            }
+
             CourseContent content = new CourseContent();
 
             content.setTitle(title);
@@ -385,6 +482,8 @@ public class CourseService {
             content.setType(type);
 
             content.setContentUrl(dbPath);
+
+            content.setThumbnailUrl(thumbnailPath);
 
             content.setDuration(null);
 
@@ -415,6 +514,7 @@ public class CourseService {
             );
         }
     }
+
     // 🔥 SAVE PROGRESS
     public CourseProgress saveProgress(String email,
                                        Long contentId,
@@ -909,5 +1009,21 @@ public class CourseService {
         dto.setOrganizations(orgDtos);
 
         return dto;
+    }
+    private void createNotification(
+            User user,
+            String title,
+            String message) {
+
+        Notification notification =
+                new Notification();
+
+        notification.setUser(user);
+
+        notification.setTitle(title);
+
+        notification.setMessage(message);
+
+        notificationRepository.save(notification);
     }
 }
