@@ -14,6 +14,9 @@ public class CourseContent {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private ContentType type; // VIDEO / PDF / QUIZ
 
@@ -34,6 +37,14 @@ public class CourseContent {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setTitle(String title) {

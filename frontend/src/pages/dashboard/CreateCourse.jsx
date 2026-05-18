@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../layout/DashboardLayout";
 
@@ -26,6 +26,8 @@ function CreateCourse() {
     localStorage.getItem("token");
 
   const isEdit = !!courseId;
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] =
     useState(false);
@@ -108,6 +110,12 @@ function CreateCourse() {
       file: null,
     });
 
+  const createFileRef = useRef(null);
+  const addContentFileRef = useRef(null);
+  const updateContentFileRef = useRef(null);
+  const createThumbnailRef = useRef(null);
+  const [courseThumbnail, setCourseThumbnail] = useState(null);
+
   /* FETCH */
 
   useEffect(() => {
@@ -181,10 +189,43 @@ function CreateCourse() {
         }
       }
 
+      return course;
+
     } catch (error) {
 
       console.log(error);
     }
+  };
+
+  const handleSelectModule = (module) => {
+    setSelectedModule(module);
+    setModuleForm({
+      title: module.title || "",
+      orderIndex: module.orderIndex || "",
+    });
+
+    // pick first content if exists
+    const first = module.contents?.[0];
+    if (first) {
+      setSelectedContent(first);
+      setContentForm({
+        title: first.title || "",
+        orderIndex: first.orderIndex || "",
+        file: null,
+      });
+    } else {
+      setSelectedContent(null);
+      setContentForm({ title: "", orderIndex: "", file: null });
+    }
+
+    // prefill add-content moduleId and suggest next order index
+    const maxIndex = (module.contents || []).reduce((m, c) => Math.max(m, Number(c.orderIndex || 0)), 0);
+    setNewContent((s) => ({ ...s, moduleId: module.id, orderIndex: String(maxIndex + 1) }));
+  };
+
+  const handleSelectContent = (content) => {
+    setSelectedContent(content);
+    setContentForm({ title: content.title || "", orderIndex: content.orderIndex || "", file: null });
   };
 
   /* CREATE COURSE */
@@ -275,6 +316,11 @@ function CreateCourse() {
           );
         }
 
+        // attach thumbnail if provided
+        if (courseThumbnail) {
+          courseData.append("thumbnail", courseThumbnail);
+        }
+
         await axios.post(
           `${API_URL}/api/courses/modules/${createdModule.id}/contents`,
           contentData,
@@ -295,6 +341,17 @@ function CreateCourse() {
           timer: 1500,
           showConfirmButton: false,
         });
+        // clear create file input before navigating
+        try {
+          if (createFileRef.current) createFileRef.current.value = "";
+        } catch (err) {}
+        try {
+          if (createThumbnailRef.current) createThumbnailRef.current.value = "";
+        } catch (err) {}
+        setCourseThumbnail(null);
+
+        // navigate to edit view so instructor sees the created course and can add modules/contents
+        navigate(`/dashboard/create-course/${createdCourse.id}`);
 
       } catch (error) {
 
@@ -411,6 +468,13 @@ function CreateCourse() {
           showConfirmButton: false,
         });
 
+        // clear update file input selection and reset contentForm.file
+        try {
+          if (updateContentFileRef.current) updateContentFileRef.current.value = "";
+        } catch (err) {}
+
+        setContentForm((s) => ({ ...s, file: null }));
+
         fetchCourse();
 
       } catch (error) {
@@ -434,22 +498,14 @@ function CreateCourse() {
 
       try {
 
-        await axios.post(
+        const moduleResponse = await axios.post(
           `${API_URL}/api/courses/${courseId}/modules`,
           {
-            title:
-              moduleTitle,
-
-            orderIndex:
-              Number(
-                moduleOrder
-              ),
+            title: moduleTitle,
+            orderIndex: Number(moduleOrder),
           },
           {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
@@ -461,10 +517,14 @@ function CreateCourse() {
           showConfirmButton: false,
         });
 
+        const createdModule = moduleResponse.data;
         setModuleTitle("");
         setModuleOrder("");
 
-        fetchCourse();
+        const updated = await fetchCourse();
+        // select the newly created module if present
+        const m = updated?.modules?.find((x) => String(x.id) === String(createdModule.id));
+        if (m) handleSelectModule(m);
 
       } catch (error) {
 
@@ -518,28 +578,25 @@ function CreateCourse() {
           }
         );
 
-        Swal.fire({
-          icon: "success",
-          title:
-            "Content Added",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        Swal.fire({ icon: "success", title: "Content Added", timer: 1500, showConfirmButton: false });
+
+        // refresh course data and suggest next order index for the same module
+        const updatedCourse = await fetchCourse();
+        const module = updatedCourse?.modules?.find((m) => String(m.id) === String(newContent.moduleId));
+        const maxIndex = (module?.contents || []).reduce((m, c) => Math.max(m, Number(c.orderIndex || 0)), 0);
 
         setNewContent({
-
-          moduleId: "",
-
+          moduleId: newContent.moduleId,
           title: "",
-
           type: "VIDEO",
-
-          orderIndex: "",
-
+          orderIndex: String(maxIndex + 1),
           file: null,
         });
 
-        fetchCourse();
+        // clear file input element so the UI shows empty
+        try {
+          if (addContentFileRef.current) addContentFileRef.current.value = "";
+        } catch (err) {}
 
       } catch (error) {
 
@@ -607,6 +664,16 @@ function CreateCourse() {
                       })
                     }
                   />
+
+                  <div className="input-group">
+                    <label>Course Thumbnail</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={createThumbnailRef}
+                      onChange={(e) => setCourseThumbnail(e.target.files[0])}
+                    />
+                  </div>
 
                 </div>
 
@@ -698,12 +765,9 @@ function CreateCourse() {
 
                     <input
                       type="file"
+                      ref={createFileRef}
                       onChange={(e) =>
-                        setCourseForm({
-                          ...courseForm,
-                          file:
-                            e.target.files[0],
-                        })
+                        setCourseForm({ ...courseForm, file: e.target.files[0] })
                       }
                     />
 
@@ -755,45 +819,7 @@ function CreateCourse() {
                             ? "active-module"
                             : ""
                         }`}
-                        onClick={() => {
-
-                          setSelectedModule(
-                            module
-                          );
-
-                          setModuleForm({
-
-                            title:
-                              module.title,
-
-                            orderIndex:
-                              module.orderIndex,
-                          });
-
-                          if (
-                            module.contents
-                              ?.length > 0
-                          ) {
-
-                            const first =
-                              module.contents[0];
-
-                            setSelectedContent(
-                              first
-                            );
-
-                            setContentForm({
-
-                              title:
-                                first.title,
-
-                              orderIndex:
-                                first.orderIndex,
-
-                              file: null,
-                            });
-                          }
-                        }}
+                        onClick={() => handleSelectModule(module)}
                       >
 
                         <h3>
@@ -804,6 +830,9 @@ function CreateCourse() {
                           Order:
                           {" "}
                           {module.orderIndex}
+                        </p>
+                        <p className="subtext">
+                          {module.contents?.length ?? 0} lesson{module.contents?.length === 1 ? "" : "s"}
                         </p>
 
                       </div>
@@ -890,23 +919,7 @@ function CreateCourse() {
                             ? "active-content"
                             : ""
                         }`}
-                        onClick={() => {
-
-                          setSelectedContent(
-                            content
-                          );
-
-                          setContentForm({
-
-                            title:
-                              content.title,
-
-                            orderIndex:
-                              content.orderIndex,
-
-                            file: null,
-                          });
-                        }}
+                        onClick={() => handleSelectContent(content)}
                       >
 
                         <h3>
@@ -966,12 +979,9 @@ function CreateCourse() {
 
                   <input
                     type="file"
+                    ref={updateContentFileRef}
                     onChange={(e) =>
-                      setContentForm({
-                        ...contentForm,
-                        file:
-                          e.target.files[0],
-                      })
+                      setContentForm({ ...contentForm, file: e.target.files[0] })
                     }
                   />
 
@@ -1035,23 +1045,15 @@ function CreateCourse() {
                 <input
                   type="text"
                   placeholder="Content Title"
+                  value={newContent.title}
                   onChange={(e) =>
-                    setNewContent({
-                      ...newContent,
-                      title:
-                        e.target.value,
-                    })
+                    setNewContent({ ...newContent, title: e.target.value })
                   }
                 />
 
                 <select
-                  onChange={(e) =>
-                    setNewContent({
-                      ...newContent,
-                      type:
-                        e.target.value,
-                    })
-                  }
+                  value={newContent.type}
+                  onChange={(e) => setNewContent({ ...newContent, type: e.target.value })}
                 >
 
                   <option value="VIDEO">
@@ -1067,23 +1069,15 @@ function CreateCourse() {
                 <input
                   type="number"
                   placeholder="Order Index"
-                  onChange={(e) =>
-                    setNewContent({
-                      ...newContent,
-                      orderIndex:
-                        e.target.value,
-                    })
-                  }
+                  value={newContent.orderIndex}
+                  onChange={(e) => setNewContent({ ...newContent, orderIndex: e.target.value })}
                 />
 
                 <input
                   type="file"
+                  ref={addContentFileRef}
                   onChange={(e) =>
-                    setNewContent({
-                      ...newContent,
-                      file:
-                        e.target.files[0],
-                    })
+                    setNewContent({ ...newContent, file: e.target.files[0] })
                   }
                 />
 

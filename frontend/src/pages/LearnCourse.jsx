@@ -4,14 +4,17 @@ import React, {
   useState,
 } from "react";
 
-import { useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import axios from "axios";
 
 import {
-  FaFilePdf,
   FaPlayCircle,
   FaBookOpen,
+  FaHome,
 } from "react-icons/fa";
 
 import "../styles/LearnCourse.css";
@@ -21,13 +24,17 @@ const API_URL =
 
 const LearnCourse = () => {
 
+  const navigate =
+    useNavigate();
+
   const { courseId } =
     useParams();
 
   const videoRef =
     useRef(null);
 
-  const [course, setCourse] =
+  const [course,
+    setCourse] =
     useState(null);
 
   const [selectedModule,
@@ -38,6 +45,14 @@ const LearnCourse = () => {
     setSelectedContent] =
     useState(null);
 
+  const [contentDetails,
+    setContentDetails] =
+    useState(null);
+
+  const [homeSelected,
+    setHomeSelected] =
+    useState(true);
+
   /* FETCH COURSE */
 
   useEffect(() => {
@@ -46,54 +61,38 @@ const LearnCourse = () => {
 
   }, []);
 
-  const fetchCourse = async () => {
+  const fetchCourse =
+    async () => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      const response =
-        await axios.get(
-          `${API_URL}/api/courses/${courseId}/learn`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
+        const response =
+          await axios.get(
+            `${API_URL}/api/courses/${courseId}/learn`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        setCourse(
+          response.data
         );
 
-      const courseData =
-        response.data;
+      } catch (error) {
 
-      setCourse(courseData);
-
-      /* DEFAULT MODULE */
-
-      if (
-        courseData.modules?.length > 0
-      ) {
-
-        const firstModule =
-          courseData.modules[0];
-
-        setSelectedModule(
-          firstModule
-        );
-
-        /* NO DEFAULT VIDEO */
-
-        setSelectedContent(null);
+        console.log(error);
       }
+    };
 
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
-  /* FETCH PROGRESS */
+  /* FETCH PROGRESS + DESCRIPTION */
 
   const fetchProgress =
     async (contentId) => {
@@ -101,7 +100,9 @@ const LearnCourse = () => {
       try {
 
         const token =
-          localStorage.getItem("token");
+          localStorage.getItem(
+            "token"
+          );
 
         const response =
           await axios.get(
@@ -113,6 +114,14 @@ const LearnCourse = () => {
               },
             }
           );
+
+        /* LESSON DESCRIPTION */
+
+        setContentDetails(
+          response.data.content
+        );
+
+        /* VIDEO TIME */
 
         const lastTime =
           response.data
@@ -152,7 +161,9 @@ const LearnCourse = () => {
         }
 
         const token =
-          localStorage.getItem("token");
+          localStorage.getItem(
+            "token"
+          );
 
         await axios.post(
           `${API_URL}/api/courses/progress`,
@@ -199,13 +210,38 @@ const LearnCourse = () => {
   /* CONTENT CLICK */
 
   const handleContentClick =
-    async (content) => {
+    async (
+      content,
+      module
+    ) => {
+
+      setHomeSelected(false);
+
+      setSelectedModule(
+        module
+      );
 
       setSelectedContent(
         content
       );
 
       fetchProgress(content.id);
+    };
+
+  /* HOME CLICK */
+
+  const handleHomeClick =
+    () => {
+
+      setHomeSelected(true);
+
+      setSelectedModule(null);
+
+      setSelectedContent(null);
+
+      setContentDetails(
+        null
+      );
     };
 
   /* LOADING */
@@ -230,17 +266,32 @@ const LearnCourse = () => {
 
       <div className="learn-left">
 
-        {/* COURSE HEADER */}
+        {/* HEADER */}
 
         <div className="course-header">
 
-          <h1 className="course-title">
-            {course?.title}
-          </h1>
+          <div className="course-header-top">
 
-          {/* <p className="course-description">
-            {course?.description}
-          </p> */}
+            <button
+              className="back-btn"
+              onClick={() =>
+                navigate(
+                  "/dashboard/courses"
+                )
+              }
+            >
+
+              ← Back
+
+            </button>
+
+          </div>
+
+          <h1 className="course-title">
+
+            {course?.title}
+
+          </h1>
 
         </div>
 
@@ -253,13 +304,20 @@ const LearnCourse = () => {
             <div className="course-preview">
 
               <h2>
-                Welcome to {course?.title}
+
+                Welcome to
+                {" "}
+                {course?.title}
+
               </h2>
 
               <p>
-                Select any lesson from the
-                right sidebar to start
-                learning.
+
+                Start your learning
+                journey by selecting
+                a chapter from the
+                course sidebar.
+
               </p>
 
             </div>
@@ -272,19 +330,23 @@ const LearnCourse = () => {
               <div className="video-top-info">
 
                 <span className="chapter-badge">
+
                   {selectedModule?.title}
+
                 </span>
 
                 <h2 className="content-title">
+
                   {selectedContent?.title}
+
                 </h2>
 
               </div>
 
-              {/* VIDEO / PDF */}
+              {/* VIDEO */}
 
               {selectedContent.type ===
-                "VIDEO" ? (
+              "VIDEO" ? (
 
                 <video
                   ref={videoRef}
@@ -302,31 +364,42 @@ const LearnCourse = () => {
                 />
 
               )}
-
-              {/* DESCRIPTION */}
-
-              <div className="video-description">
-
-                <h3>
-                  About this Course
-                </h3>
-
-                <p>
-                  {course?.description}
-                </p>
-
-              </div>
-
             </>
           )}
 
         </div>
 
+        {/* DESCRIPTION */}
+
+        <div className="video-description">
+
+          <h3>
+
+            {!selectedContent
+              ? "About this Course"
+              : "Lesson Description"}
+
+          </h3>
+
+          <p>
+
+            {!selectedContent
+              ? course?.description
+              : contentDetails
+                  ?.description ||
+                "No lesson description available."}
+
+          </p>
+
+        </div>
+
       </div>
 
-      {/* RIGHT SIDEBAR */}
+      {/* RIGHT */}
 
       <div className="learn-right">
+
+        {/* TOP */}
 
         <div className="sidebar-top">
 
@@ -340,31 +413,66 @@ const LearnCourse = () => {
 
         </div>
 
-        {course.modules.map(
+        {/* HOME */}
+
+        <div
+          className={`sidebar-home ${
+            homeSelected
+              ? "active-sidebar-home"
+              : ""
+          }`}
+          onClick={
+            handleHomeClick
+          }
+        >
+
+          <FaHome />
+
+          <span>
+            Home
+          </span>
+
+        </div>
+
+        {/* MODULES */}
+
+        {course.modules?.map(
           (module) => (
 
             <div
               key={module.id}
-              className={`sidebar-module ${selectedModule?.id ===
-                  module.id
+              className={`sidebar-module ${
+                selectedModule?.id ===
+                  module.id &&
+                !homeSelected
                   ? "active-sidebar-module"
                   : ""
-                }`}
+              }`}
             >
 
               {/* MODULE HEADER */}
 
               <div
                 className="sidebar-module-header"
-                onClick={() =>
+                onClick={() => {
+
+                  setHomeSelected(
+                    false
+                  );
+
                   setSelectedModule(
-                    module
-                  )
-                }
+                    selectedModule?.id ===
+                      module.id
+                      ? null
+                      : module
+                  );
+                }}
               >
 
                 <h3>
+
                   {module.title}
+
                 </h3>
 
               </div>
@@ -372,7 +480,8 @@ const LearnCourse = () => {
               {/* CONTENTS */}
 
               {selectedModule?.id ===
-                module.id && (
+                module.id &&
+                !homeSelected && (
 
                   <div className="sidebar-content-list">
 
@@ -381,18 +490,24 @@ const LearnCourse = () => {
 
                       <>
                         {module.contents.map(
-                          (content) => (
+                          (
+                            content
+                          ) => (
 
                             <div
-                              key={content.id}
-                              className={`sidebar-content-item ${selectedContent?.id ===
-                                  content.id
+                              key={
+                                content.id
+                              }
+                              className={`sidebar-content-item ${
+                                selectedContent?.id ===
+                                content.id
                                   ? "active-content"
                                   : ""
-                                }`}
+                              }`}
                               onClick={() =>
                                 handleContentClick(
-                                  content
+                                  content,
+                                  module
                                 )
                               }
                             >
@@ -400,40 +515,15 @@ const LearnCourse = () => {
                               <FaPlayCircle />
 
                               <span>
+
                                 {content.title}
+
                               </span>
 
                             </div>
                           )
                         )}
 
-                        {/* PDF */}
-
-                        <div
-                          className="extra-learning-card"
-                        >
-
-                          <FaFilePdf />
-
-                          <span>
-                            Chapter PDF Notes
-                          </span>
-
-                        </div>
-
-                        {/* ASSESSMENT */}
-
-                        <div
-                          className="extra-learning-card assessment-card"
-                        >
-
-                          📝
-
-                          <span>
-                            Chapter Assessment
-                          </span>
-
-                        </div>
                       </>
 
                     ) : (
@@ -452,36 +542,42 @@ const LearnCourse = () => {
           )
         )}
 
+        {/* QUIZ */}
+
         <button
-  className="quiz-card"
-  onClick={() =>
-    navigate(`/courses/${courseId}/quiz`)
-  }
->
+          className="quiz-card"
+          onClick={() =>
+            navigate(
+              `/courses/${courseId}/quiz`
+            )
+          }
+        >
 
-  <div className="quiz-icon">
+          <div className="quiz-icon">
 
-    🎯
+            🎯
 
-  </div>
+          </div>
 
-  <div className="quiz-info">
+          <div className="quiz-info">
 
-    <h4>
-      Final Quiz
-    </h4>
+            <h4>
+              Final Quiz
+            </h4>
 
-    <p>
-      Test your knowledge
-    </p>
+            <p>
+              Test your knowledge
+            </p>
 
-  </div>
+          </div>
 
-  <span className="quiz-arrow">
-    →
-  </span>
+          <span className="quiz-arrow">
 
-</button>
+            →
+
+          </span>
+
+        </button>
 
       </div>
 

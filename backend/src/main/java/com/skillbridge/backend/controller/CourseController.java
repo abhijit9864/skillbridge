@@ -147,6 +147,9 @@ public class CourseController {
             @RequestParam("title")
             String title,
 
+            @RequestParam(value = "description", required = false)
+            String description,
+
             @RequestParam("type")
             String type,
 
@@ -157,16 +160,30 @@ public class CourseController {
             MultipartFile file) {
 
         String token = authHeader.substring(7);
+
         String email = jwtUtil.extractEmail(token);
+
         System.out.println("FILE = " + file);
-        System.out.println("IS EMPTY = " + (file != null ? file.isEmpty() : "NULL"));
-        System.out.println("NAME = " + (file != null ? file.getOriginalFilename() : "NULL"));
+
+        System.out.println(
+                "IS EMPTY = " +
+                        (file != null ? file.isEmpty() : "NULL")
+        );
+
+        System.out.println(
+                "NAME = " +
+                        (file != null
+                                ? file.getOriginalFilename()
+                                : "NULL")
+        );
+
         System.out.println("TYPE = " + type);
 
         return courseService.addContent(
                 email,
                 moduleId,
                 title,
+                description,
                 ContentType.valueOf(type),
                 file,
                 orderIndex
