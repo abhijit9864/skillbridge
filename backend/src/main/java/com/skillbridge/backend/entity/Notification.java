@@ -69,4 +69,25 @@ public class Notification {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
+
+    @Column(columnDefinition = "TEXT")
+    private String rejectionReason;
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public void setType(NotificationType type) {
+        this.type = type;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
 }

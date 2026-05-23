@@ -3,6 +3,7 @@ package com.skillbridge.backend.service;
 import com.skillbridge.backend.dto.*;
 import com.skillbridge.backend.entity.*;
 import com.skillbridge.backend.repository.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,12 +29,13 @@ public class CourseService {
     private final CourseProgressRepository progressRepository;
     private final OrganizationRepository organizationRepository;
     private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public CourseService(CourseRepository courseRepository,
                          UserRepository userRepository,
                          CourseModuleRepository moduleRepository,
                          CourseContentRepository contentRepository,
-                         CourseProgressRepository progressRepository, OrganizationRepository organizationRepository, NotificationRepository notificationRepository) {
+                         CourseProgressRepository progressRepository, OrganizationRepository organizationRepository, NotificationRepository notificationRepository,SimpMessagingTemplate messagingTemplate) {
 
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
@@ -42,6 +44,7 @@ public class CourseService {
         this.progressRepository = progressRepository;
         this.organizationRepository = organizationRepository;
         this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
     }
     // 🔥 CREATE COURSE
     public Course createCourse(
@@ -149,11 +152,13 @@ public class CourseService {
             if (user.getRole() == Role.ADMIN) {
 
                 createNotification(
-                        user,
-                        "New Course Submission",
-                        instructor.getName()
-                                + " submitted course: "
+                        course.getInstructor(),
+                        "Course Approved",
+                        "Your course '"
                                 + course.getTitle()
+                                + "' has been approved",
+                        NotificationType.SYSTEM,
+                        null
                 );
             }
         }
@@ -192,7 +197,9 @@ public class CourseService {
                 "Course Approved",
                 "Your course '"
                         + course.getTitle()
-                        + "' has been approved"
+                        + "' has been approved",
+                NotificationType.SYSTEM,
+                null
         );
 
         return savedCourse;
@@ -201,7 +208,8 @@ public class CourseService {
     // 🔥 REJECT COURSE
     public Course rejectCourse(
             String email,
-            Long courseId) {
+            Long courseId,
+            String reason) {
 
         User admin = userRepository.findByEmail(email)
                 .orElseThrow(() ->
@@ -223,15 +231,15 @@ public class CourseService {
         Course savedCourse =
                 courseRepository.save(course);
 
-        // ✅ notify instructor
         createNotification(
                 course.getInstructor(),
                 "Course Rejected",
                 "Your course '"
                         + course.getTitle()
-                        + "' has been rejected"
+                        + "' has been rejected",
+                NotificationType.SYSTEM,
+                reason
         );
-
         return savedCourse;
     }
 
@@ -1013,7 +1021,9 @@ public class CourseService {
     private void createNotification(
             User user,
             String title,
-            String message) {
+            String message,
+            NotificationType type,
+            String rejectionReason) {
 
         Notification notification =
                 new Notification();
@@ -1024,6 +1034,21 @@ public class CourseService {
 
         notification.setMessage(message);
 
-        notificationRepository.save(notification);
+        notification.setType(type);
+
+        notification.setRejectionReason(
+                rejectionReason
+        );
+
+        notification.setIsRead(false);
+
+        Notification saved =
+                notificationRepository.save(notification);
+
+        // ✅ realtime push
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + user.getId(),
+                saved
+        );
     }
 }

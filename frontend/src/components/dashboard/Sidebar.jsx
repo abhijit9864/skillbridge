@@ -14,6 +14,7 @@ import {
   FaFileInvoice,
   FaHeadset,
   FaSignOutAlt,
+  FaBell,
 } from "react-icons/fa";
 
 function Sidebar() {
@@ -81,6 +82,21 @@ function Sidebar() {
           <FaCertificate />
           Certificates
         </li>
+
+        {role !== "STUDENT" && (
+          <li
+            onClick={() =>
+              window.location.href =
+              "/dashboard/notifications"
+            }
+          >
+
+            <FaBell />
+
+            Notifications
+
+          </li>
+        )}
 
         {role === "ADMIN" && (
           <>

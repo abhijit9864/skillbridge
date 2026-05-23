@@ -108,13 +108,25 @@ public class CourseController {
 
     @PutMapping("/{id}/reject")
     public Course rejectCourse(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long id) {
+
+            @RequestHeader("Authorization")
+            String authHeader,
+
+            @PathVariable Long id,
+
+            @RequestBody Map<String, String> body) {
 
         String token = authHeader.substring(7);
+
         String email = jwtUtil.extractEmail(token);
 
-        return courseService.rejectCourse(email, id);
+        String reason = body.get("reason");
+
+        return courseService.rejectCourse(
+                email,
+                id,
+                reason
+        );
     }
 
     @PostMapping("/{courseId}/modules")
